@@ -25,6 +25,8 @@ function selectType(type) {
   });
   document.getElementById('type-' + type)?.classList.add('selected');
   document.getElementById('btn-next-0').disabled = false;
+
+  nextStep();// to make it so that when the card is clicked it moves to the next step
 }
 
 function nextStep() {
