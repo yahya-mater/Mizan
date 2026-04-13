@@ -417,9 +417,9 @@ function openCloseSalfaModal(salfaId) {
   document.getElementById('f-close-salfa-transfer-no').value    = '';
   document.getElementById('f-close-salfa-transfer-date').value  = '';
   document.getElementById('f-close-salfa-recipient-name').value = salfa.recipientName || state.settings.headmaster || '';
-  document.getElementById('f-close-salfa-recipient-id-no').value    = salfa.recipientIdNo    || '';
-  document.getElementById('f-close-salfa-recipient-id-place').value = salfa.recipientIdPlace || '';
-  document.getElementById('f-close-salfa-recipient-nid').value      = salfa.recipientNid     || '';
+  document.getElementById('f-close-salfa-recipient-id-no').value    = salfa.recipientIdNo    || state.settings.headmasterIdNo || '';
+  document.getElementById('f-close-salfa-recipient-id-place').value = salfa.recipientIdPlace || state.settings.headmasterIdPlace || '';
+  document.getElementById('f-close-salfa-recipient-nid').value      = salfa.recipientNid     || state.settings.headmasterNid || '';
 
   showModal('modal-close-salfa');
 }
