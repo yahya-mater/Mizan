@@ -140,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
     state.transactions.forEach(tx => {
       if (tx.accountFrom === 'تطوير') tx.accountFrom = 'التطوير';
       if (tx.accountTo   === 'تطوير') tx.accountTo   = 'التطوير';
-      console.log("changed تطوير to التطوير in transactions");
     });
 
     // Reset volatile UI state
