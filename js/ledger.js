@@ -538,29 +538,41 @@ function _renderDevGrantSummary(targetMonth, targetYear, txsThisMonth, accounts,
   // Opening balance per column
   const dgCarry = {};
   DEV_GRANT_KEYS.forEach(k => { dgCarry[k] = dgTotal * (dgPct[k] || 0) / 100; });
-
   sorted.filter(tx => tx.date < targetStart).forEach(tx => {
-    const fk         = keyMap[tx.accountFrom];
-    const tk         = keyMap[tx.accountTo];
-    const isBankToDev = fk === bankAcc?.key && tk === devAcc?.key;
-    const isDevToBank = fk === devAcc?.key  && tk === bankAcc?.key;
-    const col = tx.devGrantField || '';
-    if (!col) return;
-    if (isBankToDev) dgCarry[col] = (dgCarry[col] || 0) + tx.total;
-    if (isDevToBank) dgCarry[col] = (dgCarry[col] || 0) - tx.total;
+    const fk      = keyMap[tx.accountFrom];
+    const tk      = keyMap[tx.accountTo];
+    const isBTD   = fk === bankAcc?.key && tk === devAcc?.key;
+    const isDTB   = fk === devAcc?.key  && tk === bankAcc?.key;
+    if (isBTD) {
+      DEV_GRANT_KEYS.forEach(k => {
+        dgCarry[k] = (dgCarry[k] || 0) + tx.total * (dgPct[k] || 0) / 100;
+      });
+    }
+    if (isDTB) {
+      const col = tx.devGrantField || '';
+      if (!col) return;
+      dgCarry[col] = (dgCarry[col] || 0) - tx.total;
+    }
   });
 
   const dgRcv = {}, dgSpn = {};
   DEV_GRANT_KEYS.forEach(k => { dgRcv[k] = 0; dgSpn[k] = 0; });
   txsThisMonth.forEach(tx => {
-    const fk         = keyMap[tx.accountFrom];
-    const tk         = keyMap[tx.accountTo];
+    const fk          = keyMap[tx.accountFrom];
+    const tk          = keyMap[tx.accountTo];
     const isBankToDev = fk === bankAcc?.key && tk === devAcc?.key;
     const isDevToBank = fk === devAcc?.key  && tk === bankAcc?.key;
-    const col = tx.devGrantField || '';
-    if (!col) return;
-    if (isBankToDev) dgRcv[col] = (dgRcv[col] || 0) + tx.total;
-    if (isDevToBank) dgSpn[col] = (dgSpn[col] || 0) + tx.total;
+    if (isBankToDev) {
+      // Distribute incoming money across all keys by percentage
+      DEV_GRANT_KEYS.forEach(k => {
+        dgRcv[k] = (dgRcv[k] || 0) + tx.total * (dgPct[k] || 0) / 100;
+      });
+    }
+    if (isDevToBank) {
+      const col = tx.devGrantField || '';
+      if (!col) return;
+      dgSpn[col] = (dgSpn[col] || 0) + tx.total;
+    }
   });
 
   const dgEnd = {};
@@ -875,25 +887,40 @@ function printDevLedger() {
   const dgCarry = {};
   DEV_GRANT_KEYS.forEach(k => { dgCarry[k] = dgTotal * (dgPct[k] || 0) / 100; });
   sorted.filter(tx => tx.date < targetStart).forEach(tx => {
-    const fk = keyMap[tx.accountFrom], tk = keyMap[tx.accountTo];
-    const isBTD = fk === bankAcc?.key && tk === devAcc?.key;
-    const isDTB = fk === devAcc?.key  && tk === bankAcc?.key;
-    const col = tx.devGrantField || '';
-    if (!col) return;
-    if (isBTD) dgCarry[col] = (dgCarry[col] || 0) + tx.total;
-    if (isDTB) dgCarry[col] = (dgCarry[col] || 0) - tx.total;
+    const fk      = keyMap[tx.accountFrom];
+    const tk      = keyMap[tx.accountTo];
+    const isBTD   = fk === bankAcc?.key && tk === devAcc?.key;
+    const isDTB   = fk === devAcc?.key  && tk === bankAcc?.key;
+    if (isBTD) {
+      DEV_GRANT_KEYS.forEach(k => {
+        dgCarry[k] = (dgCarry[k] || 0) + tx.total * (dgPct[k] || 0) / 100;
+      });
+    }
+    if (isDTB) {
+      const col = tx.devGrantField || '';
+      if (!col) return;
+      dgCarry[col] = (dgCarry[col] || 0) - tx.total;
+    }
   });
 
   const dgRcv = {}, dgSpn = {};
   DEV_GRANT_KEYS.forEach(k => { dgRcv[k] = 0; dgSpn[k] = 0; });
   txsThisMonth.forEach(tx => {
-    const fk = keyMap[tx.accountFrom], tk = keyMap[tx.accountTo];
-    const isBTD = fk === bankAcc?.key && tk === devAcc?.key;
-    const isDTB = fk === devAcc?.key  && tk === bankAcc?.key;
-    const col = tx.devGrantField || '';
-    if (!col) return;
-    if (isBTD) dgRcv[col] = (dgRcv[col] || 0) + tx.total;
-    if (isDTB) dgSpn[col] = (dgSpn[col] || 0) + tx.total;
+    const fk          = keyMap[tx.accountFrom];
+    const tk          = keyMap[tx.accountTo];
+    const isBankToDev = fk === bankAcc?.key && tk === devAcc?.key;
+    const isDevToBank = fk === devAcc?.key  && tk === bankAcc?.key;
+    if (isBankToDev) {
+      // Distribute incoming money across all keys by percentage
+      DEV_GRANT_KEYS.forEach(k => {
+        dgRcv[k] = (dgRcv[k] || 0) + tx.total * (dgPct[k] || 0) / 100;
+      });
+    }
+    if (isDevToBank) {
+      const col = tx.devGrantField || '';
+      if (!col) return;
+      dgSpn[col] = (dgSpn[col] || 0) + tx.total;
+    }
   });
 
   const dgEnd = {};

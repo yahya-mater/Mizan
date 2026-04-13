@@ -311,13 +311,12 @@ function printReport() {
     #pages-area { padding:68px 16px 30px; }
     
     .page { 
-      background:#fff; width:297mm; min-height:210mm; 
+      background:#fff; width:210mm; min-height:297mm; 
       margin:0 auto 20px; box-shadow:0 4px 24px rgba(0,0,0,.18); 
       padding:5mm; display:flex; flex-direction:column; 
-      min-height:190mm; 
     }
-    table { border-collapse:collapse; width:100%; font-size:8pt; }
-    th, td { border:0.5pt solid #374151; padding:2px 3px; text-align:center; white-space:nowrap; vertical-align:middle; line-height:1.25; }
+    table { border-collapse:collapse; width:100%; font-size:8pt; table-layout: fixed;}
+    th, td { border:0.5pt solid #374151; padding:2px 2px; text-align:center; vertical-align:middle; line-height:1.25; }
     .title-row-1 td { font-size:11pt; font-weight:900; background:#1e1b18; color:#fff; padding:5px; border:none; }
     .title-row-2 td { font-size:10pt; font-weight:800; background:#374151; color:#fff; padding:4px; border:none; }
     .title-row-3 td { font-size:9.5pt; font-weight:700; background:#fff7ed; color:#c2410c; padding:4px; border:none; }
@@ -334,7 +333,7 @@ function printReport() {
     
     .page-footer { margin-top:auto; text-align:center; font-size:7pt; color:#6b7280; padding-top:6px; border-top:0.4pt solid #e5e7eb; }
     @media print { body{background:#fff;} #toolbar{display:none!important;} #pages-area{padding:0;} .page{box-shadow:none;margin:0;padding:4mm 3mm 5mm;} }
-    @page { size:A4 landscape; margin:5mm; }
+    @page { size:A4 portrait; margin:5mm; }
   </style>
 </head>
 <body>

@@ -31,6 +31,9 @@ function loadSettingsForm() {
 
   // Sidebar labels
   document.getElementById('sidebar-school-name').textContent = s.schoolName || '';
+  if(s.schoolNid && !(s.schoolNid === '')){
+    document.getElementById('sidebar-school-name').textContent = s.schoolName + " - " + s.schoolNid;
+  }
   document.getElementById('sidebar-dir-name').textContent    = s.dirName    || '';
 
   // Salfa max
@@ -61,6 +64,9 @@ function saveSettings() {
   state.settings.salfaMax = salfaMaxVal;
 
   document.getElementById('sidebar-school-name').textContent = state.settings.schoolName;
+  if(state.settings.schoolNid && !(state.settings.schoolNid === '')){
+    document.getElementById('sidebar-school-name').textContent = state.settings.schoolName + " - " + state.settings.schoolNid;
+  }
   document.getElementById('sidebar-dir-name').textContent    = state.settings.dirName;
   document.getElementById('header-avatar').textContent       = state.settings.headmaster.charAt(0) || 'م';
 

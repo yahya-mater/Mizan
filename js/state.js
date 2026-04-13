@@ -120,7 +120,29 @@ document.addEventListener('DOMContentLoaded', () => {
         tx.serial = tx.serial.replace('ص-', '');
       }
     });
-  
+
+    // Ensure التطوير account always exists
+    const devExists = state.openingBalances.accounts.find(a => a.key === 'dev' || a.name === 'تطوير');
+    if (!devExists) {
+      state.openingBalances.accounts.push(
+        { key: 'dev', name: 'التطوير', color: '#7c3aed', balanceFrom: 0, balanceTo: 0, excludeFromLedger: true }
+      );
+    } else {
+      // Normalize old name
+      if (devExists.name === 'تطوير') {
+        devExists.key = 'dev';
+        devExists.name = 'التطوير';
+      }
+      devExists.excludeFromLedger = true;
+    }
+
+    // Fix any transactions referencing old name 'تطوير'
+    state.transactions.forEach(tx => {
+      if (tx.accountFrom === 'تطوير') tx.accountFrom = 'التطوير';
+      if (tx.accountTo   === 'تطوير') tx.accountTo   = 'التطوير';
+      console.log("changed تطوير to التطوير in transactions");
+    });
+
     // Reset volatile UI state
     state.wizardStep      = 0;
     state.transactionType = null;
