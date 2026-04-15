@@ -121,9 +121,7 @@ function generateReport() {
   while (rows.length < FIXED_ROWS) rows.push(null);
 
   // Totals
-  let totStartMnhD=0, totStartMnhF=0, totStartLhD=0, totStartLhF=0;
-  let totRcvD=0, totRcvF=0, totPaidD=0, totPaidF=0;
-  let totEndMnhD=0, totEndMnhF=0, totEndLhD=0, totEndLhF=0;
+  let totSMnh = 0, totSLh = 0, totR = 0, totP = 0, totEMnh = 0, totELh = 0;
 
   const rowsHTML = rows.map((a, i) => {
     if (!a) return `<tr style="background:${i%2===0?'#f8fafc':'#fff'}">
@@ -144,12 +142,12 @@ function generateReport() {
     const eLh  = en <  0 ? Math.abs(en) : 0;
 
     // Accumulate totals
-    totStartMnhD += Math.floor(sMnh); totStartMnhF += (sMnh % 1);
-    totStartLhD  += Math.floor(sLh);  totStartLhF  += (sLh  % 1);
-    totRcvD  += Math.floor(rc); totRcvF  += (rc % 1);
-    totPaidD += Math.floor(pd); totPaidF += (pd % 1);
-    totEndMnhD += Math.floor(eMnh); totEndMnhF += (eMnh % 1);
-    totEndLhD  += Math.floor(eLh);  totEndLhF  += (eLh  % 1);
+    totSMnh += sMnh;
+    totSLh  += sLh;
+    totR    += rc;
+    totP    += pd;
+    totEMnh += en >= 0 ? en : 0;
+    totELh  += en < 0 ? Math.abs(en) : 0;
 
     const bg = i % 2 === 0 ? '#f8fafc' : '#fff';
     const cell = (v) => `<td class="border border-gray-200 text-center text-xs font-mono py-1">${v || '&nbsp;'}</td>`;
@@ -164,16 +162,32 @@ function generateReport() {
     </tr>`;
   }).join('');
 
-  const totCell = (v) => `<td class="border border-orange-300 text-center text-xs font-black font-mono py-1 text-orange-700">${v || ''}</td>`;
-  const totalsHTML = `<tr style="background:#fff7ed; border-top:2px solid #f97316;">
+  const td = (v) => `<td class="border border-orange-300 text-center text-xs font-black font-mono py-1 text-orange-700">${v || '&nbsp;'}</td>`;
+  const splitVal = (v) => {
+    const d = Math.floor(v);
+    const f = Math.round((v % 1) * 1000);
+    // Handle the carry-over: if fractions sum to >= 1000
+    return { d: d + Math.floor(f / 1000), f: f % 1000 };
+  };
+
+  const totalsHTML = (() => {
+    const sMnh = splitVal(totSMnh);
+    const sLh  = splitVal(totSLh);
+    const R    = splitVal(totR);
+    const P    = splitVal(totP);
+    const eMnh = splitVal(totEMnh);
+    const eLh  = splitVal(totELh);
+
+    return `<tr style="background:#fff7ed; border-top:2px solid #f97316;">
     <td class="px-3 py-2 text-xs font-black border border-orange-300 text-orange-700">المجموع</td>
-    ${totCell(Math.round(totStartMnhF*1000))||''}${totCell(totStartMnhD||'')}
-    ${totCell(Math.round(totStartLhF*1000)||'')}${totCell(totStartLhD||'')}
-    ${totCell(Math.round(totRcvF*1000)||'')}${totCell(totRcvD||'')}
-    ${totCell(Math.round(totPaidF*1000)||'')}${totCell(totPaidD||'')}
-    ${totCell(Math.round(totEndMnhF*1000)||'')}${totCell(totEndMnhD||'')}
-    ${totCell(Math.round(totEndLhF*1000)||'')}${totCell(totEndLhD||'')}
-  </tr>`;
+      ${td(sMnh.f || '—')}${td(sMnh.d || '—')}
+      ${td(sLh.f  || '—')}${td(sLh.d  || '—')}
+      ${td(R.f    || '—')}${td(R.d    || '—')}
+      ${td(P.f    || '—')}${td(P.d    || '—')}
+      ${td(eMnh.f || '—')}${td(eMnh.d || '—')}
+      ${td(eLh.f  || '—')}${td(eLh.d  || '—')}
+    </tr>`;
+  })();
 
   document.getElementById('report-summary-table').innerHTML = `
     <div class="overflow-x-auto rounded-xl border border-gray-200">
@@ -238,9 +252,7 @@ function printReport() {
   const rows = [...accounts];
   while (rows.length < FIXED_ROWS) rows.push(null);
 
-  let totSMnhD=0,totSMnhF=0,totSLhD=0,totSLhF=0;
-  let totRD=0,totRF=0,totPD=0,totPF=0;
-  let totEMnhD=0,totEMnhF=0,totELhD=0,totELhF=0;
+  let totSMnh = 0, totSLh = 0, totR = 0, totP = 0, totEMnh = 0, totELh = 0;
 
   function pFmtD(v) { return v > 0 ? Math.floor(v) : ''; }
   function pFmtF(v) {
@@ -265,12 +277,13 @@ function printReport() {
     const eMnh = en >= 0 ? en : 0;
     const eLh  = en <  0 ? Math.abs(en) : 0;
 
-    totSMnhD += Math.floor(sMnh); totSMnhF += (sMnh % 1);
-    totSLhD  += Math.floor(sLh);  totSLhF  += (sLh  % 1);
-    totRD  += Math.floor(rc);  totRF  += (rc  % 1);
-    totPD  += Math.floor(pd);  totPF  += (pd  % 1);
-    totEMnhD += Math.floor(eMnh); totEMnhF += (eMnh % 1);
-    totELhD  += Math.floor(eLh);  totELhF  += (eLh  % 1);
+    totSMnh += sMnh;
+    totSLh  += sLh;
+    totR    += rc;
+    totP    += pd;
+    totEMnh += en >= 0 ? en : 0;
+    totELh  += en < 0 ? Math.abs(en) : 0;
+
 
     return `<tr>
       <td class="acct-cell" style="color:${a.color};font-weight:700;">${a.name || '&nbsp;'}</td>
@@ -283,16 +296,31 @@ function printReport() {
     </tr>`;
   }).join('');
 
-  const tF = v => Math.round(v * 1000) || '';
-  const totalsHTML = `<tr class="total-row">
-    <td class="acct-cell" style="font-weight:900;">المجموع</td>
-    ${td(tF(totSMnhF))}${td(totSMnhD||'')}
-    ${td(tF(totSLhF))} ${td(totSLhD||'')}
-    ${td(tF(totRF))}   ${td(totRD||'')}
-    ${td(tF(totPF))}   ${td(totPD||'')}
-    ${td(tF(totEMnhF))}${td(totEMnhD||'')}
-    ${td(tF(totELhF))} ${td(totELhD||'')}
-  </tr>`;
+  const splitVal = (v) => {
+    const d = Math.floor(v);
+    const f = Math.round((v % 1) * 1000);
+    // Handle the carry-over: if fractions sum to >= 1000
+    return { d: d + Math.floor(f / 1000), f: f % 1000 };
+  };
+
+  const totalsHTML = (() => {
+    const sMnh = splitVal(totSMnh);
+    const sLh  = splitVal(totSLh);
+    const R    = splitVal(totR);
+    const P    = splitVal(totP);
+    const eMnh = splitVal(totEMnh);
+    const eLh  = splitVal(totELh);
+
+    return `<tr class="total-row">
+      <td class="acct-cell" style="font-weight:900;">المجموع</td>
+      ${td(sMnh.f || '—')}${td(sMnh.d || '—')}
+      ${td(sLh.f  || '—')}${td(sLh.d  || '—')}
+      ${td(R.f    || '—')}${td(R.d    || '—')}
+      ${td(P.f    || '—')}${td(P.d    || '—')}
+      ${td(eMnh.f || '—')}${td(eMnh.d || '—')}
+      ${td(eLh.f  || '—')}${td(eLh.d  || '—')}
+    </tr>`;
+  })();
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -311,12 +339,12 @@ function printReport() {
     #pages-area { padding:68px 16px 30px; }
     
     .page { 
-      background:#fff; width:210mm; min-height:297mm; 
+      background:#fff; width:297mm; min-height:210mm; 
       margin:0 auto 20px; box-shadow:0 4px 24px rgba(0,0,0,.18); 
       padding:5mm; display:flex; flex-direction:column; 
     }
-    table { border-collapse:collapse; width:100%; font-size:8pt; table-layout: fixed;}
-    th, td { border:0.5pt solid #374151; padding:2px 2px; text-align:center; vertical-align:middle; line-height:1.25; }
+    table { border-collapse:collapse; width:100%; font-size:8pt; }
+    th, td { border:0.5pt solid #374151; padding:2px 3px; text-align:center; white-space:nowrap; vertical-align:middle; line-height:1.25; }
     .title-row-1 td { font-size:11pt; font-weight:900; background:#1e1b18; color:#fff; padding:5px; border:none; }
     .title-row-2 td { font-size:10pt; font-weight:800; background:#374151; color:#fff; padding:4px; border:none; }
     .title-row-3 td { font-size:9.5pt; font-weight:700; background:#fff7ed; color:#c2410c; padding:4px; border:none; }
@@ -333,7 +361,7 @@ function printReport() {
     
     .page-footer { margin-top:auto; text-align:center; font-size:7pt; color:#6b7280; padding-top:6px; border-top:0.4pt solid #e5e7eb; }
     @media print { body{background:#fff;} #toolbar{display:none!important;} #pages-area{padding:0;} .page{box-shadow:none;margin:0;padding:4mm 3mm 5mm;} }
-    @page { size:A4 portrait; margin:5mm; }
+    @page { size:A4 landscape; margin:5mm; }
   </style>
 </head>
 <body>
