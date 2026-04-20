@@ -59,6 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ── Tab switching ───────────────────────────────────────── */
 function switchTab(tab) {
+  if (state.currentTab === 'wizard' && tab !== 'wizard') resetWizard();
+  if (tab === 'wizard' && state.currentTab !== 'wizard') resetWizard();
+  
   // Hide all panels, show target
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tab)?.classList.add('active');

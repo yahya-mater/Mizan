@@ -133,12 +133,13 @@ const TAB_TITLES = {
   wizard:    ['معاملة جديدة',      'خطوات إنشاء وإصدار مستند مالي'],
   reports:   ['خلاصة صندوق يومية', 'ملخص شهري لأرصدة الحسابات'],
   ledger:    ['صندوق يومية',       'دفتر اليومية المحاسبي التفصيلي'],
-  settings:  ['الإعدادات',         'بيانات المدرسة واللجنة المالية'],
   devledger: ['صندوق التطوير',     'دفتر يومية حساب التطوير'],
+  export: ['التصدير الجماعي', 'تصدير المستندات لفترة زمنية محددة'],
+  settings:  ['الإعدادات',         'بيانات المدرسة واللجنة المالية'],
 };
 
 // The nav tabs that exist in the sidebar — used to loop over them cleanly
-const ALL_TABS = ['archive', 'wizard', 'reports', 'ledger', 'settings', 'devledger'];
+const ALL_TABS = ['archive', 'wizard', 'reports', 'ledger', 'settings', 'devledger', 'export'];
 
 
 /* ═══════════════════════════════════════════════════════════════
