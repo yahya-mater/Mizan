@@ -643,6 +643,15 @@ function _pBlank() { return `<td></td><td></td><td></td><td></td>`; }
 function printLedger() {
   const targetMonth    = parseInt(document.getElementById('ledger-month').value);
   const targetYear     = getLedgerYear();
+  
+  const pagesHTML = printLedgerPageMaker(targetMonth, targetYear);
+  
+  const monthName  = arabicMonthName(targetMonth);
+
+  openLedgerPreview(_wrapLedgerPrint(pagesHTML, `صندوق يومية – ${monthName} ${targetYear}`, 'A4 landscape'));
+}
+
+function printLedgerPageMaker(targetMonth, targetYear) {
   const accounts = getAccountList().filter(a => !a.excludeFromLedger);
   //const accounts       = getAccountList();
   const keyMap         = getAccountKeyMap();
@@ -773,18 +782,17 @@ function printLedger() {
 
     const pageLabel = totalPages > 1 ? ` – صفحة ${pageNum} من ${totalPages}` : '';
     return `
-      <div class="page">
+      <div class="page page-wide">
         <table class="ledger-doc-table">
           <thead>${titleRows}${theadHTML}</thead>
           <tbody>${carryRowHTML}${txRows}${footerRows}</tbody>
         </table>
-        <div class="page-footer">صندوق يومية${pageLabel}&nbsp;·&nbsp;${state.settings.schoolName}&nbsp;·&nbsp;${monthName} ${targetYear}</div>
+        <div class="page-footer" style="break-after: page;">صندوق يومية${pageLabel}&nbsp;·&nbsp;${state.settings.schoolName}&nbsp;·&nbsp;${monthName} ${targetYear}</div>
       </div>`;
   }).join('');
 
-  openLedgerPreview(_wrapLedgerPrint(pagesHTML, `صندوق يومية – ${monthName} ${targetYear}`, 'A4 landscape'));
+  return pagesHTML;
 }
-
 /* ═══════════════════════════════════════════════════════════
    PRINT DEV LEDGER — صندوق التطوير
    Reference structure: doc index 2 (the one with 16 cols)
@@ -797,6 +805,15 @@ function printLedger() {
 function printDevLedger() {
   const targetMonth = parseInt(document.getElementById('devledger-month').value);
   const targetYear  = getDevLedgerYear();
+  
+  const pagesHTML = printDevLedgerPageMaker(targetMonth, targetYear);
+  
+  const monthName  = arabicMonthName(targetMonth);
+
+  openLedgerPreview(_wrapDevLedgerPrint(pagesHTML, `صندوق يومية التطوير – ${monthName} ${targetYear}`));
+}
+
+function printDevLedgerPageMaker(targetMonth, targetYear) {
   const allAccounts = getAccountList();
   const keyMap      = getAccountKeyMap();
   const ROWS_PER_PAGE = 15;
@@ -938,7 +955,7 @@ function printDevLedger() {
     </tr>`;
 
   const dgSummaryTable = `
-    <div style="margin-top:14px;">
+    <div style="margin-top:auto;">
       <div style="font-weight:900;font-size:9.5pt;text-align:center;margin-bottom:4px;color:#1e1b18;">
         خلاصة الحساب الشهري لمنحة التطوير لشهر (${monthName}/${monthNumAr}) سنة (${targetYear})
       </div>
@@ -991,17 +1008,17 @@ function printDevLedger() {
 
     const pageLabel = totalPages > 1 ? ` – صفحة ${pageNum} من ${totalPages}` : '';
     return `
-      <div class="page${pageIdx > 0 ? ' page-break' : ''}">
+      <div class="page${pageIdx > 0 ? ' page-break' : ''} page-landscape">
         <table class="ledger-doc-table">
           <thead>${titleRows}${theadHTML}</thead>
           <tbody>${carryRowHTML}${txRows}${footerRows}</tbody>
         </table>
         ${isLast ? dgSummaryTable : ''}
-        <div class="page-footer">صندوق يومية التطوير${pageLabel}&nbsp;·&nbsp;${state.settings.schoolName}&nbsp;·&nbsp;${monthName} ${targetYear}</div>
+        <div class="page-footer" style="break-after: page;">صندوق يومية التطوير${pageLabel}&nbsp;·&nbsp;${state.settings.schoolName}&nbsp;·&nbsp;${monthName} ${targetYear}</div>
       </div>`;
   }).join('');
 
-  openLedgerPreview(_wrapDevLedgerPrint(pagesHTML, `صندوق يومية التطوير – ${monthName} ${targetYear}`));
+  return pagesHTML
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1037,7 +1054,7 @@ const _ledgerCSS = `
   #btn-close-doc { background:#374151; color:#d1d5db; }
   #pages-area { padding:68px 16px 30px; }
   .page { background:#fff; min-width:277mm; width:fit-content; margin:0 auto 20px; box-shadow:0 4px 24px rgba(0,0,0,.18); padding:5mm 4mm 6mm; display:flex; flex-direction:column; }
-  .ledger-doc-table { border-collapse:collapse; width:100%; font-size:8pt; flex:1; }
+  .ledger-doc-table { border-collapse:collapse; width:100%; font-size:8pt; flex:1; max-height: fit-content;}
   .ledger-doc-table th, .ledger-doc-table td { border:0.5pt solid #374151; padding:2px 2px; text-align:center; white-space:nowrap; vertical-align:middle; line-height:1.25; }
   .title-row-1 td { font-size:11pt; font-weight:900; background:#1e1b18; color:#fff; padding:5px; }
   .title-row-2 td { font-size:10pt; font-weight:800; background:#374151; color:#fff; padding:4px; }
@@ -1060,7 +1077,15 @@ const _ledgerCSS = `
   .ledger-doc-table tr.resid-row td  { background:#eff6ff; font-weight:700; color:#1d4ed8;  font-size:7.5pt; border-top:1.5pt solid #2563eb; }
   .label-cell  { text-align:right !important; padding-right:6px !important; }
   .center-cell { font-weight:700; }
-  .page-footer { text-align:center; font-size:7pt; color:#6b7280; margin-top:3px; padding-top:3px; border-top:0.4pt solid #e5e7eb; }
+  .page-footer { text-align:center; font-size:7pt; color:#6b7280; margin-top:3px; padding-top:3px; border-top:0.4pt solid #e5e7eb; break-after: page;}
+
+
+  @page portrait  { size: A4 portrait;  margin: 5mm; }
+  @page landscape { size: A4 landscape; margin: 5mm; }
+  @page wide      { size: 500mm 180mm;  margin: 5mm; }
+  .page-portrait  { page: portrait;  }
+  .page-landscape { page: landscape; min-height: 210mm;}
+  .page-wide      { page: wide;      }
   `;
 
 // صندوق يومية: A4 landscape
@@ -1075,6 +1100,8 @@ function _wrapLedgerPrint(pagesHTML, title) {
     ${_ledgerCSS}
     @media print { body { background:#fff; } #toolbar { display:none !important; } #pages-area { padding:0; } .page { box-shadow:none; margin:0; page-break-after:always; width:100%; padding:4mm 3mm 5mm; } .page:last-child { page-break-after:avoid; } }
     @page { size:500mm 180mm; margin:5mm; }
+    .page-landscape { page: landscape; }
+    .page-wide      { page: wide;      }
   </style>
 </head>
 <body>

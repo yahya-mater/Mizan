@@ -354,7 +354,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.altKey && e.key === '3') switchTab('reports');
     if (e.altKey && e.key === '4') switchTab('ledger');
     if (e.altKey && e.key === '5') switchTab('devledger');
-    if (e.altKey && e.key === '6') switchTab('settings');
+    if (e.altKey && e.key === '6') switchTab('export');
+    if (e.altKey && e.key === '7') switchTab('settings');
     if (e.key === 'Escape') {
       closeDeleteModal();
       closeDocsModal();

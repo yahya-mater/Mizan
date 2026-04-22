@@ -243,6 +243,13 @@ function generateReport() {
 function printReport() {
   const month = parseInt(document.getElementById('report-month').value);
   const year  = getReportYear();
+  
+  const html = _wrapReportPage(printReportPageMaker(month, year), month, year);
+
+  openLedgerPreview(html);
+}
+
+function printReportPageMaker(month, year) {
   const monthName  = ARABIC_MONTHS[month] || month;
   const monthNumAr = String(month).padStart(2, '0');
 
@@ -322,7 +329,66 @@ function printReport() {
     </tr>`;
   })();
 
-  const html = `<!DOCTYPE html>
+  const html = `
+  <div class="page .page-landscape">
+    <table>
+      <thead>
+        <tr class="title-row-1"><td colspan="13">خلاصة التبرعات المدرسية</td></tr>
+        <tr class="title-row-2"><td colspan="13">شهر ( ${monthName} / ${monthNumAr} )&nbsp;&nbsp;&nbsp;&nbsp;سنة ( ${year} )</td></tr>
+        <tr class="title-row-school">
+          <td colspan="13" style="padding:6px 10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right; font-size:8pt;">
+            <table style="width:100%; border:none; border-collapse:collapse;">
+              <tr>
+                <td style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">مديرية التربية والتعليم: ${state.settings.dirName} / قسم الشؤون المالية</td>
+                <td style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">اسم المدرسة: ${state.settings.schoolName}</td>
+                <td style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">الرقم الوطني للمدرسة: ${state.settings.schoolNid || '–'}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <th rowspan="3" style="min-width:70px;">الحساب</th>
+          <th colspan="4">الرصيد في بداية الشهر</th>
+          <th colspan="2" rowspan="2">المقبوض خلال الشهر</th>
+          <th colspan="2" rowspan="2">المدفوع خلال الشهر</th>
+          <th colspan="4">الرصيد في نهاية الشهر</th>
+        </tr>
+        <tr>
+          <th colspan="2">منه</th>
+          <th colspan="2">له</th>
+          <th colspan="2">منه</th>
+          <th colspan="2">له</th>
+        </tr>
+        <tr>
+          <th>فلس</th><th>دينار</th>
+          <th>فلس</th><th>دينار</th>
+          <th>فلس</th><th>دينار</th>
+          <th>فلس</th><th>دينار</th>
+          <th>فلس</th><th>دينار</th>
+          <th>فلس</th><th>دينار</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHTML}
+        ${totalsHTML}
+      </tbody>
+    </table>
+    <div style="margin-top:20px; display:flex; justify-content:flex-end; padding-left:20mm;">
+      <div style="text-align:center; min-width:120px;">
+        <div style="font-size:8pt; font-weight:700; margin-bottom:40px;">خاتم المدرسة والتوقيع:</div>
+        <div style="border-top:1px solid #374151; padding-top:4px; font-size:7pt; color:#6b7280;">التوقيع</div>
+      </div>
+    </div>
+    <div class="page-footer" style="break-after: page;">خلاصة صندوق يومية · ${state.settings.schoolName} · ${monthName} ${year}</div>
+  </div>`;
+
+  return html;
+}
+
+function _wrapReportPage(html, month, year) {
+  const monthName  = ARABIC_MONTHS[month] || month;
+
+  const page = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
@@ -373,59 +439,9 @@ function printReport() {
   </div>
 </div>
 <div id="pages-area">
-  <div class="page">
-    <table>
-      <thead>
-        <tr class="title-row-1"><td colspan="13">خلاصة التبرعات المدرسية</td></tr>
-        <tr class="title-row-2"><td colspan="13">شهر ( ${monthName} / ${monthNumAr} )&nbsp;&nbsp;&nbsp;&nbsp;سنة ( ${year} )</td></tr>
-        <tr class="title-row-school">
-          <td colspan="13" style="padding:6px 10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right; font-size:8pt;">
-            <table style="width:100%; border:none; border-collapse:collapse;">
-              <tr>
-                <td style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">مديرية التربية والتعليم: ${state.settings.dirName} / قسم الشؤون المالية</td>
-                <td style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">اسم المدرسة: ${state.settings.schoolName}</td>
-                <td style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">الرقم الوطني للمدرسة: ${state.settings.schoolNid || '–'}</td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <th rowspan="3" style="min-width:70px;">الحساب</th>
-          <th colspan="4">الرصيد في بداية الشهر</th>
-          <th colspan="2" rowspan="2">المقبوض خلال الشهر</th>
-          <th colspan="2" rowspan="2">المدفوع خلال الشهر</th>
-          <th colspan="4">الرصيد في نهاية الشهر</th>
-        </tr>
-        <tr>
-          <th colspan="2">منه</th>
-          <th colspan="2">له</th>
-          <th colspan="2">منه</th>
-          <th colspan="2">له</th>
-        </tr>
-        <tr>
-          <th>فلس</th><th>دينار</th>
-          <th>فلس</th><th>دينار</th>
-          <th>فلس</th><th>دينار</th>
-          <th>فلس</th><th>دينار</th>
-          <th>فلس</th><th>دينار</th>
-          <th>فلس</th><th>دينار</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rowsHTML}
-        ${totalsHTML}
-      </tbody>
-    </table>
-    <div style="margin-top:20px; display:flex; justify-content:flex-end; padding-left:20mm;">
-      <div style="text-align:center; min-width:120px;">
-        <div style="font-size:8pt; font-weight:700; margin-bottom:40px;">خاتم المدرسة والتوقيع:</div>
-        <div style="border-top:1px solid #374151; padding-top:4px; font-size:7pt; color:#6b7280;">التوقيع</div>
-      </div>
-    </div>
-    <div class="page-footer">خلاصة صندوق يومية · ${state.settings.schoolName} · ${monthName} ${year}</div>
-  </div>
+${html}
 </div>
-</body></html>`;
-
-  openLedgerPreview(html);
+</body></html>
+  `
+  return page;
 }

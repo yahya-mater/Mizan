@@ -85,7 +85,7 @@ function buildDisbursementPage(tx) {
   const payMethod    = isCheck ? 'شيك' : 'نقداً';
   const purposeList  = (tx.purpose || '').split(/[،,]/).map(s => s.trim()).filter(Boolean);
 
-  return `<div class="page">
+  return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
     <td class="hdr-center" style="border:none;">
@@ -238,7 +238,7 @@ function buildDecisionPage(tx) {
   const dinar = Math.floor(tx.total);
   const fils  = Math.round((tx.total - dinar) * FILS_PER_DINAR);
 
-  return `<div class="page">
+  return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
     <td class="hdr-center" style="border:none;">
@@ -349,7 +349,7 @@ function buildLocalPurchasePage(tx) {
     }
   }
 
-  return `<div class="page">
+  return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
     <td style="text-align:center; border:none;">
@@ -413,7 +413,7 @@ function buildClaimPage(tx) {
   const fils        = Math.round((tx.total - dinar) * FILS_PER_DINAR);
   const purposeList = (tx.purpose || '').split(/[،,]/).map(s => s.trim()).filter(Boolean);
 
-  return `<div class="page">
+  return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
     <td style="text-align:center; border:none;">
@@ -546,7 +546,7 @@ function buildJournalPage(tx) {
     }
   }
 
-  return `<div class="page">
+  return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
     <td style="text-align:center; border:none;">
@@ -639,7 +639,7 @@ function buildSalfaBookPage(tx) {
   const totalDinar = Math.floor(grandTotal);
   const totalFils  = Math.round((grandTotal % 1) * FILS_PER_DINAR);
 
-  return `<div class="page">
+  return `<div class="page page-portrait">
 
   <!-- ROW 1: Header table -->
   <table style="margin-bottom:0; border-collapse:collapse; width:100%;">
@@ -752,7 +752,7 @@ function buildLocalPurchasePageFromSalfaRow(tx, row) {
     }
   }
 
-  return `<div class="page">
+  return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
     <td style="text-align:center; border:none;">
@@ -816,7 +816,7 @@ function buildClaimPageFromSalfaRow(tx, row) {
   const fils        = Math.round(((row.total || 0) % 1) * FILS_PER_DINAR);
   const purposeList = (row.bayan || '').split(/[،,]/).map(s => s.trim()).filter(Boolean);
 
-  return `<div class="page">
+  return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
     <td style="text-align:center; border:none;">
@@ -1008,10 +1008,17 @@ function openDocPreview(pagesHTML, title) {
       body { background:#fff; }
       #toolbar, #print-instructions { display:none !important; }
       #pages-area { padding:0; }
-      .page { box-shadow:none; margin:0; padding:8mm 10mm; width:100%; min-height:unset; page-break-after:always; }
+      .page { box-shadow:none; margin:0; padding:8mm 10mm; width:100%; min-height:unset; page-break-after:always; break-before: page;}
       .page:last-child { page-break-after:avoid; }
     }
     @page { size:A4 portrait; margin:5mm; }
+
+    @page portrait  { size: A4 portrait;  margin: 5mm; }
+    @page landscape { size: A4 landscape; margin: 5mm; }
+    @page wide      { size: 500mm 180mm;  margin: 5mm; }
+    .page-portrait  { page: portrait;  }
+    .page-landscape { page: landscape; }
+    .page-wide      { page: wide;      }
   </style>
 </head>
 <body>
