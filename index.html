@@ -384,13 +384,23 @@
             <table class="w-full text-sm">
               <thead>
                 <tr>
-                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100">رقم تسلسلي</th>
-                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100">التاريخ</th>
-                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100">النوع</th>
-                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100">المستفيد / المورد</th>
-                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100">المبلغ</th>
-                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100">المستندات</th>
-                  <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 border-b border-gray-100" style="min-width:210px;">إجراءات</th>
+                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100 cursor-pointer select-none" onclick="sortArchive('serial')" style="white-space: nowrap;">
+                    رقم تسلسلي <span id="sort-icon-serial">&nbsp;</span>
+                  </th>
+                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100 cursor-pointer select-none" onclick="sortArchive('date')" style="white-space: nowrap;">
+                    التاريخ <span id="sort-icon-date">▼</span>
+                  </th>
+                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100 cursor-pointer select-none" onclick="sortArchive('type')" style="white-space: nowrap;">
+                    النوع <span id="sort-icon-type">&nbsp;</span>
+                  </th>
+                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100 cursor-pointer select-none" onclick="sortArchive('recipient')" style="white-space: nowrap;">
+                    المستفيد / المورد <span id="sort-icon-recipient">&nbsp;</span>
+                  </th>
+                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100 cursor-pointer select-none" onclick="sortArchive('total')" style="white-space: nowrap;">
+                    المبلغ <span id="sort-icon-total">&nbsp;</span>
+                  </th>
+                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 border-b border-gray-100" style="white-space: nowrap;">المستندات</th>
+                  <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 border-b border-gray-100" style="min-width:210px;" style="white-space: nowrap;">إجراءات</th>
                 </tr>
               </thead>
               <tbody id="archive-tbody">
@@ -448,7 +458,7 @@
         <div id="wiz-step-0" class="fade-in">
           <div class="card p-6">
             <h3 class="font-bold text-gray-700 mb-5 text-base">اختر نوع المعاملة</h3>
-            <div class="grid grid-cols-2 gap-4" style="max-width:720px;">
+            <div class="grid grid-cols-3 gap-4" style="max-width:1024px;">
 
               <div class="type-card" onclick="selectType('salfa_yad')" id="type-salfa_yad">
                 <div class="flex items-center gap-3 mb-2">
@@ -478,6 +488,21 @@
                   <span class="badge badge-blue">مستند صرف</span>
                 </div>
                 <div class="text-xs text-gray-400">نقداً ← تُضاف إلى سلفة الصندوق تلقائياً · شيك ← مستقلة</div>
+              </div>
+
+              <div class="type-card" onclick="selectType('invoice_dev')" id="type-invoice_dev">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);">
+                    <svg class="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                  </div>
+                  <div class="font-bold text-gray-800 text-base">فاتورة (منحة التطوير)</div>
+                </div>
+                <div class="text-xs text-gray-500 mb-2">فاتورة مدفوعة من ميزانية منحة التطوير بشيك</div>
+                <div class="flex flex-wrap gap-1 text-xs">
+                  <span class="badge" style="background:#ede9fe;color:#7c3aed;">مشترى محلي</span>
+                  <span class="badge" style="background:#ede9fe;color:#7c3aed;">قرار صرف</span>
+                  <span class="badge" style="background:#ede9fe;color:#7c3aed;">مستند صرف</span>
+                </div>
               </div>
 
               <div class="type-card" onclick="selectType('claim')" id="type-claim">
@@ -701,14 +726,14 @@
               <div id="journal-amount-wrapper" class="hidden col-span-2">
                 <label class="form-label">المبلغ <span class="text-red-400">*</span></label>
                 <div class="flex gap-2 items-center">
-                  <div style="width:160px;">
-                    <input type="number" id="f-journal-dinar" class="form-input" placeholder="الدنانير" min="0" />
-                  </div>
-                  <span class="text-gray-500 font-semibold text-sm">دينار</span>
                   <div style="width:90px;">
                     <input type="number" id="f-journal-fils" class="form-input" placeholder="الفلوس" min="0" max="999" />
                   </div>
                   <span class="text-gray-500 font-semibold text-sm">فلس</span>
+                  <div style="width:160px;">
+                    <input type="number" id="f-journal-dinar" class="form-input" placeholder="الدنانير" min="0" />
+                  </div>
+                  <span class="text-gray-500 font-semibold text-sm">دينار</span>
                 </div>
               </div>
             </div>

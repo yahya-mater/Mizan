@@ -15,6 +15,45 @@ function makeBadgeHtml(type) {
 }
 
 /* ── Archive table ───────────────────────────────────────── */
+let _sortKey = 'date';
+let _sortDir = -1; // -1 = descending, 1 = ascending
+
+function sortArchive(key) {
+  if (_sortKey === key) {
+    _sortDir *= -1;
+  } else {
+    _sortKey = key;
+    _sortDir = key === 'total' ? -1 : 1;
+  }
+  // Update icons
+  ['serial','date','type','recipient','total'].forEach(k => {
+    const el = document.getElementById('sort-icon-' + k);
+    if (el) el.textContent = k === _sortKey ? (_sortDir === 1 ? '▲' : '▼') : ' ';
+  });
+  renderArchive();
+}
+
+function getSortValue(tx, key) {
+  switch (key) {
+    case 'serial': {
+      const s = tx.serial || '';
+      // Extract the numeric part after "/" if present, else parse whole string
+      const slashMatch = s.match(/(\d+)\/(\d+)/);
+      if (slashMatch) {
+        // Sort by year first, then number: year * 10000 + num
+        return parseInt(slashMatch[1]) * 10000 + parseInt(slashMatch[2]);
+      }
+      const numMatch = s.match(/\d+/);
+      return numMatch ? parseInt(numMatch[0]) : 0;
+    }
+    case 'date':      return tx.date   || '';
+    case 'type':      return TRANSACTION_TYPE_META[tx.type]?.label || '';
+    case 'recipient': return tx.recipient || tx.accountFrom || '';
+    case 'total':     return tx.total || 0;
+    default:          return '';
+  }
+}
+
 function renderArchive() {
   const tbody = document.getElementById('archive-tbody');
   const empty = document.getElementById('archive-empty');
@@ -27,7 +66,14 @@ function renderArchive() {
       .flatMap(tx => tx.items || [])
   );
 
-  const visible = state.transactions.slice().reverse().filter(tx => !innerIds.has(tx.id));
+  const visible = state.transactions
+    .filter(tx => !innerIds.has(tx.id))
+    .sort((a, b) => {
+      const av = getSortValue(a, _sortKey);
+      const bv = getSortValue(b, _sortKey);
+      if (typeof av === 'number' || typeof bv === 'number') return (av - bv) * _sortDir;
+      return av.localeCompare(bv, 'ar') * _sortDir;
+    });
 
   if (visible.length === 0) {
     empty.style.display = 'block';
@@ -279,7 +325,8 @@ function confirmDelete() {
   state.transactions = state.transactions.filter(t => t.id !== pendingDeleteId);
   pendingDeleteId = null;
   hideModal('modal-delete');
-  renderArchive();
+  //renderArchive();
+  sortArchive('date')
   updateStats();
   showToast(`🗑️ تم حذف المعاملة ${tx?.serial || ''} بنجاح`, 'error');
   persistState();

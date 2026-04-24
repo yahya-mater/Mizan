@@ -787,7 +787,7 @@ function printLedgerPageMaker(targetMonth, targetYear) {
           <thead>${titleRows}${theadHTML}</thead>
           <tbody>${carryRowHTML}${txRows}${footerRows}</tbody>
         </table>
-        <div class="page-footer" style="break-after: page;">صندوق يومية${pageLabel}&nbsp;·&nbsp;${state.settings.schoolName}&nbsp;·&nbsp;${monthName} ${targetYear}</div>
+        <div class="page-footer" style="break-after: page; margin-top: auto;">صندوق يومية${pageLabel}&nbsp;·&nbsp;${state.settings.schoolName}&nbsp;·&nbsp;${monthName} ${targetYear}</div>
       </div>`;
   }).join('');
 
@@ -1014,7 +1014,7 @@ function printDevLedgerPageMaker(targetMonth, targetYear) {
           <tbody>${carryRowHTML}${txRows}${footerRows}</tbody>
         </table>
         ${isLast ? dgSummaryTable : ''}
-        <div class="page-footer" style="break-after: page;">صندوق يومية التطوير${pageLabel}&nbsp;·&nbsp;${state.settings.schoolName}&nbsp;·&nbsp;${monthName} ${targetYear}</div>
+        <div class="page-footer" style="break-after: page; margin-top: auto;">صندوق يومية التطوير${pageLabel}&nbsp;·&nbsp;${state.settings.schoolName}&nbsp;·&nbsp;${monthName} ${targetYear}</div>
       </div>`;
   }).join('');
 
@@ -1077,7 +1077,7 @@ const _ledgerCSS = `
   .ledger-doc-table tr.resid-row td  { background:#eff6ff; font-weight:700; color:#1d4ed8;  font-size:7.5pt; border-top:1.5pt solid #2563eb; }
   .label-cell  { text-align:right !important; padding-right:6px !important; }
   .center-cell { font-weight:700; }
-  .page-footer { text-align:center; font-size:7pt; color:#6b7280; margin-top:3px; padding-top:3px; border-top:0.4pt solid #e5e7eb; break-after: page;}
+  .page-footer { margin-top: auto; text-align:center; font-size:7pt; color:#6b7280; margin-top:3px; padding-top:3px; border-top:0.4pt solid #e5e7eb; break-after: page;}
 
 
   @page portrait  { size: A4 portrait;  margin: 5mm; }
@@ -1085,7 +1085,7 @@ const _ledgerCSS = `
   @page wide      { size: 500mm 180mm;  margin: 5mm; }
   .page-portrait  { page: portrait;  }
   .page-landscape { page: landscape; min-height: 210mm;}
-  .page-wide      { page: wide;      }
+  .page-wide      { page: wide; min-height: 180mm;}
   `;
 
 // صندوق يومية: A4 landscape

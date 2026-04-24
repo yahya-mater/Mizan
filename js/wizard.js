@@ -127,7 +127,7 @@ function setupStep1() {
   });
 
   // Check-fields reset — only reset if not salfa_yad (which always shows check fields)
-  if (t !== 'salfa_yad') {
+  if (t !== 'salfa_yad' && t !== 'invoice_dev') {
     document.getElementById('check-fields-wrapper').classList.add('hidden');
   }
 
@@ -143,7 +143,10 @@ function setupStep1() {
   // Auto-fill from/to if not yet filled (edit mode pre-fills them first)
   const fromEl = document.getElementById('f-account-from');
   const toEl   = document.getElementById('f-account-to');
-  if (!fromEl.value && !toEl.value) {
+  if (!state.editingId) {
+    fromEl.value = schema.defaultAccounts.from;
+    toEl.value   = schema.defaultAccounts.to;
+  } else if (!fromEl.value && !toEl.value) {
     fromEl.value = schema.defaultAccounts.from;
     toEl.value   = schema.defaultAccounts.to;
   }
@@ -187,6 +190,7 @@ function getNextSerial() {
 
 function toggleCheckFields() {
   if (state.transactionType === 'salfa_yad') return;
+  if (state.transactionType === 'invoice_dev') return;
   const isCheck = document.querySelector('input[name="f-payment-method"]:checked')?.value === 'شيك';
   document.getElementById('check-fields-wrapper').classList.toggle('hidden', !isCheck);
   if (!isCheck) document.getElementById('f-transfer-no').value = '';

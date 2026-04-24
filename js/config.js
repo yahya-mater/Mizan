@@ -41,6 +41,7 @@ const TRANSACTION_TYPE_META = {
   journal:       { label: 'سند قيد',           badgeClass: '', badgeStyle: 'background:#f3e8ff;color:#7c3aed;'    },
   salfa:         { label: 'سلفة صندوق',        badgeClass: 'badge-orange'                                         },
   salfa_yad:     { label: 'سلفة مدير (يد)', badgeClass: 'badge-orange' },
+  invoice_dev: { label: 'فاتورة (منحة التطوير)', badgeClass: 'badge-blue' },
 };
 
 /* ── Documents available per transaction type ────────────── */
@@ -87,6 +88,11 @@ const ALL_DOCS = {
     { id: 'decision',     label: 'مستند قرار صرف',         icon: '📋', color: 'bg-orange-50 border-orange-200 text-orange-700' },
     { id: 'disbursement', label: 'مستند صرف تبرعات مدرسية', icon: '💰', color: 'bg-amber-50 border-amber-200 text-amber-700'   },
   ],
+  invoice_dev: [
+    { id: 'local',        label: 'نموذج مشترى محلي',        icon: '🛒', color: 'bg-blue-50 border-blue-200 text-blue-700'       },
+    { id: 'decision',     label: 'مستند قرار صرف',           icon: '📋', color: 'bg-orange-50 border-orange-200 text-orange-700' },
+    { id: 'disbursement', label: 'مستند صرف تبرعات مدرسية',  icon: '💰', color: 'bg-amber-50 border-amber-200 text-amber-700'   },
+  ],
 };
 
 // Add alongside ALL_DOCS — documents available per salfaRow
@@ -105,6 +111,7 @@ const ARCHIVE_DOC_LABELS = {
   journal:      ['سند قيد'],
   salfa:        ['قرار صرف', 'مستند صرف', 'دفتر صندوق سلفات'],
   salfa_yad:    ['قرار صرف', 'مستند صرف'],
+  invoice_dev: ['مشترى محلي', 'قرار صرف', 'مستند صرف'],
 };
 
 // Document colour classes used in review step and wherever doc pills appear
@@ -125,6 +132,7 @@ const REVIEW_DOC_LABELS = {
   claim_cash:   ['نموذج مطالبة مالية', 'نموذج مشترى محلي', 'مستند قرار صرف', 'مستند صرف تبرعات مدرسية'],
   journal:      ['سند قيد التبرعات المدرسية'],
   salfa:        ['مستند قرار صرف', 'مستند صرف تبرعات مدرسية', 'دفتر صندوق سلفات'],
+  invoice_dev: ['نموذج مشترى محلي', 'مستند قرار صرف', 'مستند صرف تبرعات مدرسية'],
 };
 
 /* ── Tab navigation metadata ─────────────────────────────── */
@@ -155,7 +163,6 @@ const ALL_TABS = ['archive', 'wizard', 'reports', 'ledger', 'settings', 'devledg
      fields         – map of wrapper-element-id → { visible, required }
 ═══════════════════════════════════════════════════════════════ */
 const TRANSACTION_SCHEMAS = {
-
   advance: {
     label:           'سلفة',
     recipientLabel:  'اسم المستفيد من السلفة',
@@ -172,7 +179,7 @@ const TRANSACTION_SCHEMAS = {
       'check-fields-wrapper':    { visible: false, required: false },
       'advance-amount-wrapper':  { visible: true,  required: true  },
       'journal-amount-wrapper':  { visible: false, required: false },
-      'dev-grant-field-wrapper': { visible: true,  required: false },
+      'dev-grant-field-wrapper': { visible: false, required: false },
       'salfa-fields-wrapper':    { visible: false, required: false },
     },
   },
@@ -193,7 +200,7 @@ const TRANSACTION_SCHEMAS = {
       'check-fields-wrapper':    { visible: false, required: false },
       'advance-amount-wrapper':  { visible: false, required: false },
       'journal-amount-wrapper':  { visible: false, required: false },
-      'dev-grant-field-wrapper': { visible: true,  required: false },
+      'dev-grant-field-wrapper': { visible: false, required: false },
       'salfa-fields-wrapper':    { visible: false, required: false },
     },
   },
@@ -214,7 +221,7 @@ const TRANSACTION_SCHEMAS = {
       'check-fields-wrapper':    { visible: false, required: false },
       'advance-amount-wrapper':  { visible: false, required: false },
       'journal-amount-wrapper':  { visible: false, required: false },
-      'dev-grant-field-wrapper': { visible: true,  required: false },
+      'dev-grant-field-wrapper': { visible: false, required: false },
       'salfa-fields-wrapper':    { visible: false, required: false },
     },
   },
@@ -235,7 +242,7 @@ const TRANSACTION_SCHEMAS = {
       'check-fields-wrapper':    { visible: false, required: false },
       'advance-amount-wrapper':  { visible: false, required: false },
       'journal-amount-wrapper':  { visible: true,  required: true  },
-      'dev-grant-field-wrapper': { visible: true,  required: false },
+      'dev-grant-field-wrapper': { visible: false, required: false },
       'salfa-fields-wrapper':    { visible: false, required: false },
     },
   },
@@ -257,6 +264,27 @@ const TRANSACTION_SCHEMAS = {
       'advance-amount-wrapper':  { visible: false, required: false },
       'journal-amount-wrapper':  { visible: false, required: false },
       'dev-grant-field-wrapper': { visible: false, required: false },
+      'salfa-fields-wrapper':    { visible: false, required: false },
+    },
+  },
+
+  invoice_dev: {
+    label:           'فاتورة (منحة التطوير)',
+    recipientLabel:  'اسم المورد / الجهة البائعة',
+    defaultAccounts: { from: 'التطوير', to: 'البنك' },
+    skipStep2:       false,
+    fields: {
+      'recipient-wrapper':       { visible: true,  required: true  },
+      'nid-wrapper':             { visible: false, required: false },
+      'invoice-no-wrapper':      { visible: true,  required: false },
+      'invoice-date-wrapper':    { visible: true,  required: false },
+      'entry-doc-wrapper':       { visible: true,  required: false },
+      'entry-doc-date-wrapper':  { visible: true,  required: false },
+      'payment-method-wrapper':  { visible: false, required: false },
+      'check-fields-wrapper':    { visible: true,  required: false },
+      'advance-amount-wrapper':  { visible: false, required: false },
+      'journal-amount-wrapper':  { visible: false, required: false },
+      'dev-grant-field-wrapper': { visible: true,  required: true  },
       'salfa-fields-wrapper':    { visible: false, required: false },
     },
   },
