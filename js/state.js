@@ -142,6 +142,64 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tx.accountTo   === 'تطوير') tx.accountTo   = 'التطوير';
     });
 
+    // ── Migrate old salfa salfaRows to invoice_cash transactions ──
+    state.transactions.forEach(salfa => {
+      if (salfa.type !== 'salfa') return;
+      if (!salfa.salfaRows || salfa.salfaRows.length === 0) return;
+    
+      const newItems = [];
+    
+      salfa.salfaRows.forEach(row => {
+        const newId = state.nextId++;
+        const newTx = {
+          id:           newId,
+          type:         'invoice_cash',
+          serial:       String(newId),
+          date:         row.invoiceDate || salfa.date,
+          recipient:    row.owner       || '',
+          accountFrom:  'التبرعات',
+          accountTo:    'البنك',
+          nid:          row.nid         || '',
+          invoiceNo:    row.invoiceNo   || '',
+          invoiceDate:  row.invoiceDate || '',
+          entryDocNo:   '',
+          entryDocDate: '',
+          paymentMethod:'نقداً',
+          recipientName:    '',
+          recipientNid:     '',
+          recipientIdNo:    '',
+          recipientIdPlace: '',
+          transferNo:   '',
+          transferDate: '',
+          purpose:      row.bayan       || '',
+          devGrantField:'',
+          items: (row.gharad || []).map(g => ({
+            desc:  g.name      || '',
+            qty:   g.qty       || 1,
+            price: g.unitPrice || 0,
+            total: g.total     || 0,
+          })),
+          dinar:   Math.floor(row.total || 0),
+          fils:    Math.round(((row.total || 0) % 1) * 1000),
+          total:   row.total  || 0,
+          salfaId: salfa.id,
+        };
+        state.transactions.push(newTx);
+        newItems.push(newId);
+      });
+    
+      // Update salfa to new structure
+      salfa.items  = newItems;
+      salfa.total  = newItems.reduce((s, id) => {
+        const t = state.transactions.find(t => t.id === id);
+        return s + (t ? t.total : 0);
+      }, 0);
+      salfa.status = salfa.status || (salfa.transferNo ? 'closed' : 'open');
+    
+      // Remove old fields
+      delete salfa.salfaRows;
+    });
+
     // Reset volatile UI state
     state.wizardStep      = 0;
     state.transactionType = null;
