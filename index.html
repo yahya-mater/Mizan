@@ -738,7 +738,27 @@
               </div>
             </div>
 
-            <!-- salfa-fields-wrapper removed -->
+            <!-- Image upload section -->
+            <div class="col-span-2 border-t border-gray-100 pt-4 mt-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-bold text-gray-600">الصور المرفقة</div>
+                  <div class="text-xs text-gray-400 mt-0.5">إرفاق صور للفواتير أو الوثائق الداعمة</div>
+                </div>
+                <button id="wizard-img-btn"
+                  onclick="openWizardImageUpload()"
+                  type="button"
+                  class="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all"
+                  style="background:#f8fafc; color:#94a3b8; border:1.5px solid #e2e8f0;">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  إرفاق صور
+                </button>
+              </div>
+            </div>
+
             </div>
               <div class="flex justify-between mt-6">
                 <button onclick="prevStep()" class="btn-secondary">&rarr; السابق</button>
@@ -1585,7 +1605,7 @@
             <!-- IMPORT -->
             <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
               <div class="font-bold text-blue-700 mb-1 text-sm flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"/></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"/></svg>
                 استيراد البيانات
               </div>
               <p class="text-xs text-blue-600 mb-3">اختر ملف JSON صادر من ميزان لاستعادة البيانات.</p>
@@ -1600,6 +1620,30 @@
               <div id="import-preview" class="hidden mt-3 p-3 bg-white rounded-lg border border-blue-100 text-xs text-gray-600"></div>
             </div>
           </div>
+
+          
+          <div class="border-t border-gray-100 pt-4 mt-4">
+            <div class="text-sm font-bold text-gray-600 mb-3">الصور المرفقة</div>
+            <div class="flex gap-3 flex-wrap">
+              <button onclick="exportImages()"
+                class="btn-secondary text-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                تصدير الصور
+              </button>
+              <label class="btn-secondary text-sm flex items-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"/>
+                </svg>
+                استيراد الصور
+                <input type="file" accept=".json" class="hidden" onchange="importImages(event)" />
+              </label>
+            </div>
+          </div>
+
         </div>
 
       </div><!-- end settings tab -->
@@ -1608,6 +1652,102 @@
   </main>
 </div><!-- end app shell -->
 
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL: IMAGE VIEWER / MANAGER
+     Add this inside <body> alongside the other modals in mizan.html
+═══════════════════════════════════════════════════════════════ -->
+<div id="modal-images" class="fixed inset-0 z-50 hidden items-center justify-center" style="background:rgba(0,0,0,.55);">
+  <div class="card fade-in flex flex-col" style="width:min(92vw,720px); max-height:90vh; direction:rtl;">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
+      <div>
+        <h3 class="font-black text-gray-800 text-base flex items-center gap-2">
+          <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          مرفقات الصور
+        </h3>
+        <p class="text-xs text-gray-400 mt-0.5">
+          المعاملة: <span id="img-modal-serial" class="font-bold text-orange-600">–</span>
+          &nbsp;·&nbsp; <span id="img-modal-count">0</span> صورة
+        </p>
+      </div>
+      <button onclick="closeImagesModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none px-2">✕</button>
+    </div>
+
+    <!-- Upload zone -->
+    <div class="px-5 pt-4 flex-shrink-0">
+      <div id="img-drop-zone"
+        class="border-2 border-dashed border-orange-200 rounded-xl p-5 text-center cursor-pointer transition-all hover:border-orange-400 hover:bg-orange-50"
+        onclick="document.getElementById('img-file-input').click()"
+        ondragover="imgDragOver(event)"
+        ondragleave="imgDragLeave(event)"
+        ondrop="imgDrop(event)">
+        <svg class="w-8 h-8 text-orange-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <p class="text-sm font-semibold text-orange-500">اسحب الصور هنا أو اضغط للاختيار</p>
+        <p class="text-xs text-gray-400 mt-1">JPG, PNG, WEBP — يتم ضغطها تلقائياً</p>
+        <input type="file" id="img-file-input" accept="image/*" multiple class="hidden"
+          onchange="imgFilePicked(event)" />
+      </div>
+
+      <!-- Upload progress -->
+      <div id="img-upload-progress" class="hidden mt-3">
+        <div class="flex items-center gap-3">
+          <div class="flex-1 bg-gray-100 rounded-full h-2">
+            <div id="img-upload-bar" class="h-2 rounded-full bg-orange-500 transition-all" style="width:0%"></div>
+          </div>
+          <span id="img-upload-label" class="text-xs text-gray-500 whitespace-nowrap">جاري الرفع...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thumbnail grid -->
+    <div class="flex-1 overflow-y-auto px-5 py-4">
+      <div id="img-grid" class="grid gap-3" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));">
+        <!-- Populated by JS -->
+      </div>
+      <div id="img-empty" class="hidden py-12 text-center text-gray-400">
+        <svg class="w-10 h-10 mx-auto mb-2 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <p class="text-sm font-semibold">لا توجد صور مرفقة</p>
+        <p class="text-xs mt-1">ارفع صوراً من المنطقة أعلاه</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-5 py-3 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
+      <button onclick="imgDeleteAll()" id="img-btn-delete-all"
+        class="text-xs text-red-400 hover:text-red-600 font-semibold hidden">
+        حذف جميع الصور
+      </button>
+      <button onclick="closeImagesModal()" class="btn-secondary text-sm">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Full-size image lightbox ── -->
+<div id="modal-lightbox" class="fixed inset-0 z-60 hidden items-center justify-center" style="background:rgba(0,0,0,.85);">
+  <button onclick="closeLightbox()"
+    class="absolute top-4 left-4 text-white text-2xl font-black leading-none opacity-70 hover:opacity-100 z-10">✕</button>
+  <button onclick="lightboxPrev()"
+    class="absolute right-4 top-1/2 -translate-y-1/2 text-white text-3xl font-black opacity-70 hover:opacity-100 z-10 select-none">›</button>
+  <button onclick="lightboxNext()"
+    class="absolute left-4 top-1/2 -translate-y-1/2 text-white text-3xl font-black opacity-70 hover:opacity-100 z-10 select-none">‹</button>
+  <div class="flex flex-col items-center max-w-4xl max-h-screen p-8">
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-screen object-contain rounded-lg shadow-2xl" style="max-height:80vh;" />
+    <div class="mt-3 text-center">
+      <p id="lightbox-label" class="text-white font-semibold text-sm"></p>
+      <p id="lightbox-meta"  class="text-gray-400 text-xs mt-0.5"></p>
+    </div>
+  </div>
+</div>
 
 
 <!-- Mobile sidebar overlay -->
@@ -1635,5 +1775,7 @@
 <script src="js/ledger.js"></script>
 <script src="js/documents.js"></script>
 <script src="js/export.js"></script>
+<script src="js/imagestore.js"></script>
+<script src="js/images.js"></script>
 </body>
 </html>

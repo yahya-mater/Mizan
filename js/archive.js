@@ -134,6 +134,7 @@ function renderStandardRow(tbody, tx) {
           </svg>
           حذف
         </button>
+        ${imgCameraButtonHtml(tx.id)}
       </div>
     </td>`;
   tbody.appendChild(tr);
@@ -235,10 +236,14 @@ function renderSalfaRow(tbody, salfa) {
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
               حذف
             </button>
+            ${imgCameraButtonHtml(tx.id)}
           </div>
         </td>`;
       tbody.appendChild(innerRow);
   });
+
+  // Refresh image badges after DOM is populated
+  setTimeout(() => refreshImageBadges(), 0);
 }
 
 function toggleSalfaExpand(salfaId) {
@@ -313,6 +318,8 @@ function confirmDelete() {
     (tx.items || []).forEach(itemId => {
       const inner = state.transactions.find(t => t.id === itemId);
       if (inner) inner.salfaId = null;
+      // Delete images for inner tx too
+      ImageStore.deleteAllForTx(itemId).catch(() => {});
     });
   } else if (tx?.salfaId) {
     const parentSalfa = state.transactions.find(s => s.id === tx.salfaId);
@@ -321,6 +328,9 @@ function confirmDelete() {
       parentSalfa.total = recalcSalfaTotal(parentSalfa);
     }
   }
+
+  // Delete images for this transaction
+  ImageStore.deleteAllForTx(pendingDeleteId).catch(() => {});
 
   state.transactions = state.transactions.filter(t => t.id !== pendingDeleteId);
   pendingDeleteId = null;
@@ -408,6 +418,8 @@ document.addEventListener('DOMContentLoaded', () => {
       closeDocsModal();
       closeCloseSalfaModal();
       overflowCancel();
+      closeLightbox();
+      closeImagesModal();
     }
   });
 });

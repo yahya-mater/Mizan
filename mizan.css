@@ -207,3 +207,30 @@ tbody tr:hover td { background:#fff7ed; }
 
 @page { size: A4; margin: 5mm; }
 
+/* ── Image modal & lightbox ── */
+#modal-lightbox { z-index: 60; }
+
+.img-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  font-size: 10px;
+}
+
+#img-grid > div {
+  aspect-ratio: 1;
+  background: #f8fafc;
+}
+
+#img-drop-zone.drag-over {
+  border-color: #f97316;
+  background: #fff7ed;
+}
+
+@media (max-width: 480px) {
+  #modal-images > div { width: 96vw !important; max-height: 95vh; }
+  #img-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+

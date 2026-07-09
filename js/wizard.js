@@ -196,6 +196,51 @@ function toggleCheckFields() {
   if (!isCheck) document.getElementById('f-transfer-no').value = '';
 }
 
+// Temp ID for images during wizard (before tx is saved)
+let _wizardTempImageId = null;
+
+function getWizardTempImageId() {
+  if (!_wizardTempImageId) {
+    // Use a negative number to avoid collision with real tx IDs
+    _wizardTempImageId = -Date.now();
+  }
+  return _wizardTempImageId;
+}
+
+async function openWizardImageUpload() {
+  console.log("called for openWizardImageUpload");
+  const tempId = getWizardTempImageId();
+  await openImagesModal(tempId);
+  // Update badge count after modal closes
+  const count = await ImageStore.count(tempId);
+  _updateWizardImageBadge(count);
+  
+  console.log("openWizardImageUpload is done");
+}
+
+async function _updateWizardImageBadge(count) {
+  const btn = document.getElementById('wizard-img-btn');
+  if (!btn) return;
+  const badge = btn.querySelector('.img-badge');
+  if (count > 0) {
+    btn.style.background = '#fff7ed';
+    btn.style.color      = '#c2410c';
+    btn.style.border     = '1px solid #fed7aa';
+    if (badge) badge.textContent = count;
+    else {
+      const b = document.createElement('span');
+      b.className   = 'img-badge ml-1 bg-orange-500 text-white text-xs rounded-full px-1.5 font-black';
+      b.textContent = count;
+      btn.appendChild(b);
+    }
+  } else {
+    btn.style.background = '#f8fafc';
+    btn.style.color      = '#94a3b8';
+    btn.style.border     = '1px solid #e2e8f0';
+    if (badge) badge.remove();
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════
    STEP 2 — ITEMS GRID
 ═══════════════════════════════════════════════════════════ */
@@ -774,9 +819,33 @@ function assignToCashSalfaForced(tx) {
 /* ═══════════════════════════════════════════════════════════
    FINISH / RESET
 ═══════════════════════════════════════════════════════════ */
-function finishWizard(action) {
+async function finishWizard(action) {
   const tx = saveCurrentTransaction();
   if (!tx) return;  // overflow modal is showing, waiting for user decision
+
+  // Migrate temp images to real tx ID
+  if (_wizardTempImageId) {
+    try {
+      const tempImages = await ImageStore.getAll(_wizardTempImageId);
+      if (tempImages.length > 0) {
+        // Re-save each image under the real txId
+        for (const img of tempImages) {
+          const full = await ImageStore.getOne(img.id);
+          if (full) {
+            // Create a Blob from the stored data URL and save under real txId
+            const res   = await fetch(full.fullData);
+            const blob  = await res.blob();
+            const file  = new File([blob], 'image', { type: full.mimeType });
+            await ImageStore.save(tx.id, file, full.label);
+          }
+        }
+        await ImageStore.deleteAllForTx(_wizardTempImageId);
+        tx.imageCount = tempImages.length;
+        persistState();
+      }
+    } catch (e) { /* silent */ }
+    _wizardTempImageId = null;
+  }
 
   if (action === 'done') {
     showToast(`✅ تم حفظ المعاملة ${tx.serial} بنجاح`, 'success');
@@ -818,6 +887,13 @@ function resetWizard() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+
+  // Clear temp images on reset
+  if (_wizardTempImageId) {
+    ImageStore.deleteAllForTx(_wizardTempImageId).catch(() => {});
+    _wizardTempImageId = null;
+  }
+  _updateWizardImageBadge(0);
 
   const defaultRadio = document.querySelector('input[name="f-payment-method"][value="نقداً"]');
   if (defaultRadio) { defaultRadio.checked = true; toggleCheckFields(); }
