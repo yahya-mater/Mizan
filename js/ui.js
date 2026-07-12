@@ -87,6 +87,8 @@ function switchTab(tab) {
   document.getElementById('page-title').textContent = title;
   document.getElementById('page-sub').textContent   = sub;
 
+  if (tab === 'settings') loadAuthSettings();
+
   state.currentTab = tab;
   closeSidebar();
 }

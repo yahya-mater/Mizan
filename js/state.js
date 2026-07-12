@@ -214,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderArchive();
   updateStats();
   loadOpeningBalancesForm();
+  authInit();
 });
 
 /* ── First-run banner ────────────────────────────────────── */

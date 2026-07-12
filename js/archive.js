@@ -335,7 +335,7 @@ function confirmDelete() {
   state.transactions = state.transactions.filter(t => t.id !== pendingDeleteId);
   pendingDeleteId = null;
   hideModal('modal-delete');
-  //renderArchive();
+  renderArchive();
   sortArchive('date')
   updateStats();
   showToast(`🗑️ تم حذف المعاملة ${tx?.serial || ''} بنجاح`, 'error');
