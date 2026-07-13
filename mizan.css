@@ -354,3 +354,109 @@ body.locked { overflow: hidden; }
 /* ── App shell hidden state ──────────────────────────────── */
 #app-shell.hidden { display: none !important; }
 
+/* ═══════════════════════════════════════════════════════════════
+   ONBOARDING TOUR (coachmarks) — see js/help.js
+═══════════════════════════════════════════════════════════════ */
+body.tour-active { overflow: hidden; }
+
+#tour-overlay { position: fixed; inset: 0; z-index: 9500; }
+#tour-overlay .tour-mask {
+  position: fixed;
+  background: rgba(20, 16, 14, .62);
+  transition: all .25s ease;
+  pointer-events: auto;
+}
+#tour-overlay .tour-hole-ring {
+  position: fixed;
+  border-radius: 12px;
+  box-shadow: 0 0 0 3px #f97316, 0 0 24px rgba(249,115,22,.55);
+  transition: all .25s ease;
+  pointer-events: none;
+}
+
+#tour-overlay .tour-tooltip {
+  position: fixed;
+  width: min(92vw, 320px);
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  z-index: 9501;
+  direction: rtl;
+  animation: tourFadeIn .2s ease;
+}
+@keyframes tourFadeIn { from { opacity:0; transform:translateY(4px);} to {opacity:1; transform:translateY(0);} }
+
+.tour-tooltip-title { font-weight: 800; font-size: 15px; color:#1e1b18; margin-bottom:6px; }
+.tour-tooltip-text  { font-size: 13px; line-height:1.7; color:#475569; margin-bottom:14px; }
+.tour-tooltip-footer{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.tour-progress      { font-size:11px; font-weight:700; color:#94a3b8; white-space:nowrap; }
+.tour-actions       { display:flex; gap:6px; }
+
+.tour-actions button {
+  border:none; cursor:pointer; border-radius:8px; font-size:12px; font-weight:700;
+  padding:7px 12px; transition:all .15s;
+}
+.tour-btn-skip { background:transparent; color:#94a3b8; }
+.tour-btn-skip:hover { color:#64748b; }
+.tour-btn-back { background:#f1f5f9; color:#334155; }
+.tour-btn-back:hover { background:#e2e8f0; }
+.tour-btn-next {
+  background:linear-gradient(135deg,#f97316,#ea580c); color:#fff;
+  box-shadow:0 2px 8px rgba(249,115,22,.35);
+}
+.tour-btn-next:hover { transform: translateY(-1px); }
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTEXTUAL HELP ICONS + TOOLTIP BUBBLES
+═══════════════════════════════════════════════════════════════ */
+.help-icon {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:16px; height:16px; border-radius:50%;
+  background:#e2e8f0; color:#64748b;
+  font-size:11px; font-weight:800; line-height:1;
+  cursor:help; user-select:none; margin-inline-start:5px;
+  vertical-align:middle; transition:all .15s;
+}
+.help-icon:hover, .help-icon:focus {
+  background:#fed7aa; color:#c2410c; outline:none;
+}
+
+.help-bubble {
+  position:fixed; z-index:9600; max-width:260px;
+  background:#1e1b18; color:#f1f5f9;
+  font-size:12.5px; line-height:1.6; font-weight:500;
+  padding:10px 12px; border-radius:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);
+  direction:rtl; text-align:right;
+  animation: helpFadeIn .12s ease;
+  pointer-events:none;
+}
+@keyframes helpFadeIn { from {opacity:0;} to {opacity:1;} }
+
+.help-bubble::after {
+  content:''; position:absolute; left: var(--arrow-left, 50%);
+  transform: translateX(-50%);
+  width:0; height:0; border:6px solid transparent;
+}
+.help-bubble-arrow-bottom::after { top:100%; border-top-color:#1e1b18; }
+.help-bubble-arrow-top::after    { bottom:100%; border-bottom-color:#1e1b18; }
+
+/* ═══════════════════════════════════════════════════════════════
+   INLINE MICROCOPY (short helper text under fields/buttons)
+═══════════════════════════════════════════════════════════════ */
+.field-hint {
+  font-size:11.5px; line-height:1.6; color:#94a3b8;
+  margin-top:4px; margin-bottom:0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HEADER HELP ("؟") BUTTON
+═══════════════════════════════════════════════════════════════ */
+.help-header-btn {
+  width:34px; height:34px; border-radius:50%; border:1.5px solid #e2e8f0;
+  background:#fff; color:#94a3b8; font-weight:900; font-size:15px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.help-header-btn:hover { border-color:#f97316; color:#f97316; background:#fff7ed; }

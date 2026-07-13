@@ -600,6 +600,7 @@ function buildJournalPage(tx) {
 }
 
 function buildSalfaBookPage(tx) {
+  console.log("buildSalfaBookPage(tx) tx: ", tx);
   const salfaRows = tx.salfaRows || [];
   const TOTAL_ROWS = 25;
 
@@ -607,20 +608,29 @@ function buildSalfaBookPage(tx) {
   let dataRowsHTML = '';
   let grandTotal = 0;
 
+  const innerIds = tx.items || [];
+  const innerTxs = innerIds
+    .map(id => state.transactions.find(t => t.id === id))
+    .filter(Boolean);
+
   for (let i = 0; i < TOTAL_ROWS; i++) {
-    const row = salfaRows[i];
+    const row = innerTxs[i];
     if (row) {
       const dinar = Math.floor(row.total || 0);
       const fils  = Math.round(((row.total || 0) % 1) * FILS_PER_DINAR);
-      //const itemNames = (row.gharad || []).map(g => g.name).filter(Boolean).join(' / ');
       grandTotal += row.total || 0;
+
+      // Build item description from row.items array
+      const itemNames = (row.items || [])
+        .map(g => g.desc).filter(Boolean).join(' / ');
+
       dataRowsHTML += `<tr>
         <td class="num-cell">${fils  || '—————'}</td>
         <td class="num-cell">${dinar || '—————'}</td>
-        <td class="span-cell">${row.owner       || ''}</td>
-        <td class="span-cell">${row.bayan       || ''}</td>
-        <td class="num-cell">${row.invoiceNo    || ''}</td>
-        <td class="span-cell">${row.invoiceDate || ''}</td>
+        <td class="span-cell">${row.recipient  || ''}</td>
+        <td class="span-cell">${itemNames || row.purpose || ''}</td>
+        <td class="num-cell">${row.invoiceNo   || ''}</td>
+        <td class="span-cell" style="white-space: nowrap;">${row.invoiceDate || ''}</td>
         <td class="span-cell"></td>
       </tr>`;
     } else {

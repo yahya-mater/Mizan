@@ -474,12 +474,12 @@
                                 <p id="page-sub" class="text-xs text-gray-400 mt-0.5">سجل جميع المعاملات المالية</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3" id="header-actions">
                             <div class="text-left text-xs text-gray-400">
                                 <div id="header-date" class="font-semibold text-gray-600"></div>
-                                <!-- <div>السنة المالية 2025</div> -->
                             </div>
-                            <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:linear-gradient(135deg,#f97316,#ea580c);" id="header-avatar">م</div>
+                            <div class="hidden w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:linear-gradient(135deg,#f97316,#ea580c);" id="header-avatar">م</div>
+                            <button id="btn-help-tour" title="إعادة الجولة التعريفية" aria-label="المساعدة والجولة التعريفية" class="help-header-btn" onclick="restartTour()">؟</button>
                         </div>
                     </header>
 
@@ -712,7 +712,7 @@
                                         <!-- National ID (only for claim) -->
                                         <div id="nid-wrapper" class="hidden">
                                             <label class="form-label">الرقم الوطني</label>
-                                            <input type="text" id="f-nid" class="form-input" placeholder="00000000000" maxlength="11" />
+                                            <input type="text" id="f-nid" class="form-input" placeholder="0000000000" maxlength="10" />
                                         </div>
 
                                         <!-- Invoice No (for invoice / claim) -->
@@ -853,6 +853,7 @@
                                         <div id="dev-grant-field-wrapper">
                                             <label class="form-label">
                                                 تصنيف منحة التطوير
+                                                <span class="help-icon" data-help="اختر البند الذي تنتمي له هذه المعاملة ضمن منحة التطوير المدرسي الخمسة. اترك القيمة فارغة إن كانت المعاملة لا علاقة لها بمنحة التطوير.">ⓘ</span>
                                                 <span class="text-xs font-normal text-gray-400 mr-1">(يُستخدم فقط في صندوق يومية التطوير، لا يؤثر على أي مستند آخر)</span>
                                             </label>
                                             <select id="f-dev-grant-field" class="form-input">
@@ -1493,7 +1494,9 @@
                                             <input type="text" id="s-dir-name" class="form-input" placeholder="اسم المديرية" />
                                         </div>
                                         <div>
-                                            <label class="form-label">الرقم الوطني للمدرسة <span class="text-red-400">*</span></label>
+                                            <label class="form-label">الرقم الوطني للمدرسة <span class="text-red-400">*</span>
+                                                <span class="help-icon" data-help="الرقم الوطني الرسمي المسجل للمدرسة لدى الوزارة — يظهر في رأس كل مستند مطبوع.">ⓘ</span>
+                                            </label>
                                             <input type="text" id="s-school-nid" class="form-input" placeholder="الرقم الوطني للمدرسة" />
                                         </div>
                                     </div>
@@ -1516,7 +1519,9 @@
                                             <input type="text" id="s-headmaster-nid" class="form-input" placeholder="الرقم الوطني" />
                                         </div>
                                         <div>
-                                            <label class="form-label">رقم إثبات الشخصية <span class="text-red-400">*</span></label>
+                                            <label class="form-label">رقم إثبات الشخصية <span class="text-red-400">*</span>
+                                                <span class="help-icon" data-help="رقم بطاقة إثبات الشخصية لمدير المدرسة، وليس الرقم الوطني.">ⓘ</span>
+                                            </label>
                                             <input type="text" id="s-headmaster-id-no" class="form-input" placeholder="رقم إثبات الشخصية" />
                                         </div>
                                         <div>
@@ -1554,6 +1559,7 @@
                                     <h2 class="font-black text-gray-800 mb-1 flex items-center gap-2">
                                         <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                         سلفة الصندوق
+                                        <span class="help-icon" data-help="سلفة الصندوق تجمع المدفوعات النقدية الصغيرة في مغلف واحد حتى تصل الحد الأقصى، بدلاً من تحويل بنكي لكل فاتورة صغيرة.">ⓘ</span>
                                     </h2>
                                     <p class="text-xs text-gray-400 mb-4">الحد الأقصى لكل سلفة صندوق. عند اختيار «نقداً» في فاتورة أو مطالبة، تُضاف تلقائياً إلى السلفة المفتوحة حتى يمتلئ هذا الحد.</p>
                                     <div class="flex items-end gap-4 flex-wrap">
@@ -2074,5 +2080,6 @@
     <script src="js/export.js"></script>
     <script src="js/imagestore.js"></script>
     <script src="js/images.js"></script>
+    <script src="js/help.js"></script>
 </body>
 </html>
