@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ميزان – نظام الإدارة المالية المدرسية</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
+  
+  <script src="js/jspdf.umd.min.js"></script>
+  <script src="js/html2canvas.min.js"></script>
 
   <!-- Google Fonts: Tajawal (Arabic) -->
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+  <link href="Tajawal_font.css" rel="stylesheet" />
 
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="tailwindcss.17"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -713,12 +716,14 @@
                                         <div id="nid-wrapper" class="hidden">
                                             <label class="form-label">الرقم الوطني</label>
                                             <input type="text" id="f-nid" class="form-input" placeholder="0000000000" maxlength="10" />
+                                            <p class="field-hint">الرقم الوطني المكوّن من 10 رقماً كما يظهر على الهوية الشخصية.</p>
                                         </div>
 
                                         <!-- Invoice No (for invoice / claim) -->
                                         <div id="invoice-no-wrapper" class="hidden">
                                             <label class="form-label">رقم الفاتورة</label>
                                             <input type="text" id="f-invoice-no" class="form-input" placeholder="رقم فاتورة المورد" />
+                                            <p class="field-hint">الرقم الظاهر على فاتورة المورد نفسها، وليس رقم الفاتورة الداخلي.</p>
                                         </div>
 
                                         <!-- Invoice date — invoice + claim -->
@@ -1498,6 +1503,7 @@
                                                 <span class="help-icon" data-help="الرقم الوطني الرسمي المسجل للمدرسة لدى الوزارة — يظهر في رأس كل مستند مطبوع.">ⓘ</span>
                                             </label>
                                             <input type="text" id="s-school-nid" class="form-input" placeholder="الرقم الوطني للمدرسة" />
+                                            <p class="field-hint">كما هو مسجل لدى وزارة التربية والتعليم — يظهر في جميع المستندات الرسمية.</p>
                                         </div>
                                     </div>
                                 </div>

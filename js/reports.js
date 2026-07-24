@@ -330,7 +330,7 @@ function printReportPageMaker(month, year) {
   })();
 
   const html = `
-  <div class="page .page-landscape">
+  <div class="page page-landscape">
     <table>
       <thead>
         <tr class="title-row-1"><td colspan="13">خلاصة التبرعات المدرسية</td></tr>

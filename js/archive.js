@@ -18,13 +18,16 @@ function makeBadgeHtml(type) {
 let _sortKey = 'date';
 let _sortDir = -1; // -1 = descending, 1 = ascending
 
-function sortArchive(key) {
+function sortArchive(key, dir) {
   if (_sortKey === key) {
     _sortDir *= -1;
   } else {
     _sortKey = key;
     _sortDir = key === 'total' ? -1 : 1;
   }
+  
+  if(dir) _sortDir = dir;
+
   // Update icons
   ['serial','date','type','recipient','total'].forEach(k => {
     const el = document.getElementById('sort-icon-' + k);
@@ -170,7 +173,7 @@ function renderSalfaRow(tbody, salfa) {
       ${checkInfo}
     </td>
     <td class="px-4 py-3 border-b border-orange-200">
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2" style="display:inline-block;">
         <div class="flex-1 bg-orange-100 rounded-full h-2" style="max-width:120px;">
           <div class="h-2 rounded-full" style="width:${pct}%; background:${pct>=90?'#dc2626':'#f97316'};"></div>
         </div>
@@ -315,13 +318,15 @@ function confirmDelete() {
   const tx = state.transactions.find(t => t.id === pendingDeleteId);
 
   if (tx?.type === 'salfa') {
+    // Delete all inner cash transactions too
     (tx.items || []).forEach(itemId => {
-      const inner = state.transactions.find(t => t.id === itemId);
-      if (inner) inner.salfaId = null;
-      // Delete images for inner tx too
       ImageStore.deleteAllForTx(itemId).catch(() => {});
     });
+    const innerIds = new Set(tx.items || []);
+    state.transactions = state.transactions.filter(t => !innerIds.has(t.id));
+
   } else if (tx?.salfaId) {
+    // Remove from parent salfa
     const parentSalfa = state.transactions.find(s => s.id === tx.salfaId);
     if (parentSalfa) {
       parentSalfa.items = parentSalfa.items.filter(i => i !== tx.id);
@@ -332,11 +337,12 @@ function confirmDelete() {
   // Delete images for this transaction
   ImageStore.deleteAllForTx(pendingDeleteId).catch(() => {});
 
+  // Remove the transaction itself
   state.transactions = state.transactions.filter(t => t.id !== pendingDeleteId);
   pendingDeleteId = null;
   hideModal('modal-delete');
   renderArchive();
-  sortArchive('date')
+  sortArchive('date');
   updateStats();
   showToast(`🗑️ تم حذف المعاملة ${tx?.serial || ''} بنجاح`, 'error');
   persistState();
@@ -390,7 +396,8 @@ function issueSelectedDocs() {
   if (pages.length === 0) { showToast('يرجى اختيار مستند واحد على الأقل', 'error'); return; }
 
   closeDocsModal();
-  openDocPreview(pages.join(''), 'مستندات المعاملة ' + tx.serial);
+  //openDocPreview(pages.join(''), 'مستندات المعاملة ' + tx.serial);
+  openDocPreview(pages, 'مستندات المعاملة ' + tx.serial);
 }
 
 /* ── Modal keyboard / backdrop wiring ────────────────────── */

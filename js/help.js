@@ -330,24 +330,24 @@ function initHelpIcons() {
    .field-hint already exists right after that element).
    ───────────────────────────────────────────────────────────── */
 
-const MICROCOPY = [
-  { id: 's-school-nid',       text: 'كما هو مسجل لدى وزارة التربية والتعليم — يظهر في جميع المستندات الرسمية.' },
-  { id: 'f-nid',               text: 'الرقم الوطني المكوّن من 10 رقماً كما يظهر على الهوية الشخصية.' },
-  { id: 'f-invoice-no',        text: 'الرقم الظاهر على فاتورة المورد نفسها، وليس رقم الفاتورة الداخلي.' },
-];
-
-function injectMicrocopy() {
-  MICROCOPY.forEach(({ id, text }) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const next = el.nextElementSibling;
-    if (next && next.classList && next.classList.contains('field-hint')) return; // already there
-    const p = document.createElement('p');
-    p.className = 'field-hint';
-    p.textContent = text;
-    el.insertAdjacentElement('afterend', p);
-  });
-}
+//const MICROCOPY = [
+//  { id: 's-school-nid',       text: 'كما هو مسجل لدى وزارة التربية والتعليم — يظهر في جميع المستندات الرسمية.' },
+//  { id: 'f-nid',               text: 'الرقم الوطني المكوّن من 10 رقماً كما يظهر على الهوية الشخصية.' },
+//  { id: 'f-invoice-no',        text: 'الرقم الظاهر على فاتورة المورد نفسها، وليس رقم الفاتورة الداخلي.' },
+//];
+//
+//function injectMicrocopy() {
+//  MICROCOPY.forEach(({ id, text }) => {
+//    const el = document.getElementById(id);
+//    if (!el) return;
+//    const next = el.nextElementSibling;
+//    if (next && next.classList && next.classList.contains('field-hint')) return; // already there
+//    const p = document.createElement('p');
+//    p.className = 'field-hint';
+//    p.textContent = text;
+//    el.insertAdjacentElement('afterend', p);
+//  });
+//}
 
 /* ─────────────────────────────────────────────────────────────
    4) HEADER HELP BUTTON
@@ -355,29 +355,29 @@ function injectMicrocopy() {
    the user replay the walkthrough at any time.
    ───────────────────────────────────────────────────────────── */
 
-function injectHelpButton() {
-  if (document.getElementById('btn-help-tour')) return;
-  const header = document.getElementById('header-actions');
-  if (!header) return;
-
-  const btn = document.createElement('button');
-  btn.id = 'btn-help-tour';
-  btn.title = 'إعادة الجولة التعريفية';
-  btn.setAttribute('aria-label', 'المساعدة والجولة التعريفية');
-  btn.className = 'help-header-btn';
-  btn.textContent = '؟';
-  btn.addEventListener('click', restartTour);
-
-  header.insertBefore(btn, header.firstChild);
-}
+//function injectHelpButton() {
+//  if (document.getElementById('btn-help-tour')) return;
+//  const header = document.getElementById('header-actions');
+//  if (!header) return;
+//
+//  const btn = document.createElement('button');
+//  btn.id = 'btn-help-tour';
+//  btn.title = 'إعادة الجولة التعريفية';
+//  btn.setAttribute('aria-label', 'المساعدة والجولة التعريفية');
+//  btn.className = 'help-header-btn';
+//  btn.textContent = '؟';
+//  btn.addEventListener('click', restartTour);
+//
+//  header.insertBefore(btn, header.firstChild);
+//}
 
 /* ─────────────────────────────────────────────────────────────
    INIT
    ───────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   initHelpIcons();
-  injectMicrocopy();
-  injectHelpButton();
+  //injectMicrocopy();
+  //injectHelpButton();
 
   // Auto-start the walkthrough once, for genuinely new users only —
   // mirrors the first-run check already used in state.js.

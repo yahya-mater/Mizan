@@ -352,7 +352,7 @@ function buildLocalPurchasePage(tx) {
   return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
-    <td style="text-align:center; border:none;">
+    <td style="justify-items: center; text-align:center; border:none;">
       <img src="moe-logo.jpg" style="height:90px; object-fit:contain;" />
     </td>
   </tr></table>
@@ -416,7 +416,7 @@ function buildClaimPage(tx) {
   return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
-    <td style="text-align:center; border:none;">
+    <td style="justify-items: center; text-align:center; border:none;">
       <img src="moe-logo.jpg" style="height:90px; object-fit:contain;" />
     </td>
   </tr></table>
@@ -549,7 +549,7 @@ function buildJournalPage(tx) {
   return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
-    <td style="text-align:center; border:none;">
+    <td style="justify-items: center; text-align:center; border:none;">
       <img src="moe-logo.jpg" style="height:90px; object-fit:contain;" />
     </td>
   </tr></table>
@@ -765,7 +765,7 @@ function buildLocalPurchasePageFromSalfaRow(tx, row) {
   return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
-    <td style="text-align:center; border:none;">
+    <td style="justify-items: center; text-align:center; border:none;">
       <img src="moe-logo.jpg" style="height:90px; object-fit:contain;" />
     </td>
   </tr></table>
@@ -829,7 +829,7 @@ function buildClaimPageFromSalfaRow(tx, row) {
   return `<div class="page page-portrait">
 
   <table style="margin-bottom:0; border-collapse:collapse;"><tr>
-    <td style="text-align:center; border:none;">
+    <td style="justify-items: center; text-align:center; border:none;">
       <img src="moe-logo.jpg" style="height:90px; object-fit:contain;" />
     </td>
   </tr></table>
@@ -944,12 +944,24 @@ const docBuilders = {
    DOCUMENT PREVIEW SHELL (A4 portrait iframe)
 ═══════════════════════════════════════════════════════════ */
 function openDocPreview(pagesHTML, title) {
+  const isArray = Array.isArray(pagesHTML);
+  const fullPreviewHTML = isArray ? pagesHTML.join('') : pagesHTML;
+  const pagesDataJSON = isArray ? JSON.stringify(pagesHTML) : null;
+
+  const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+
   const shell = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
+  <base href="${baseUrl}">
   <title>${title}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <link href="Tajawal_font.css" rel="stylesheet"/>
+  <script src="js/html2canvas.min.js"></script>
+  <script src="js/jspdf.umd.min.js"></script>
+  <script src="tailwindcss.17"></script>
+
   <style>
     * { font-family:'Tajawal',Arial,sans-serif; box-sizing:border-box; margin:0; padding:0; }
     body { background:#e5e7eb; direction:rtl; }
@@ -965,7 +977,9 @@ function openDocPreview(pagesHTML, title) {
     #toolbar button {
       padding:7px 18px; border-radius:7px; border:none; cursor:pointer;
       font-family:'Tajawal',sans-serif; font-size:13px; font-weight:700;
+      transition: opacity 0.2s;
     }
+    #toolbar button:disabled { opacity: 0.6; cursor: not-allowed; }
     #btn-print-doc { background:linear-gradient(135deg,#f97316,#ea580c); color:#fff; box-shadow:0 2px 8px rgba(249,115,22,.4); }
     #btn-close-doc { background:#374151; color:#d1d5db; }
     #pages-area { padding:68px 16px 30px; }
@@ -977,8 +991,8 @@ function openDocPreview(pagesHTML, title) {
     }
 
     table            { border-collapse:collapse; width:100%; }
-    td, th           { border:1pt solid #374151; padding:4px 8px; font-size:10pt; vertical-align:middle; }
-    .hdr-center      { text-align:center; font-weight:800; font-size:11pt; padding:5px; }
+    th, td           { border:1pt solid #374151; padding:4px 8px; font-size:10pt; vertical-align:middle; }
+    .hdr-center      { justify-items: center; text-align:center; font-weight:800; font-size:11pt; padding:5px; }
     .hdr-title       { text-align:center; font-weight:900; font-size:12pt; padding:6px; background:#f8fafc; }
     .hdr-side        { text-align:right; font-weight:700; padding:4px 8px; }
     .body-row        { text-align:right; font-size:10.5pt; padding:6px 8px; line-height:1.8; }
@@ -1001,34 +1015,41 @@ function openDocPreview(pagesHTML, title) {
     .recip-label     { font-weight:700; background:#fafafa; white-space:nowrap; width:1%; }
     .matloob-line    { border-bottom:1pt solid #374151; display:inline-block; width:100%; }
 
-    #print-instructions {
-      display:none; position:fixed; inset:0; z-index:9999;
-      background:rgba(0,0,0,.55); align-items:center; justify-content:center;
+    #active-render-slot {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+      visibility: visible;
+      opacity: 1;
     }
-    .modal-box         { background:#fff; border-radius:14px; padding:28px 32px; max-width:460px; width:90%; direction:rtl; box-shadow:0 8px 40px rgba(0,0,0,.25); }
-    .modal-box h2      { font-size:17px; font-weight:900; margin-bottom:12px; }
-    .modal-box ol      { font-size:13px; padding-right:18px; line-height:2; margin-bottom:14px; color:#1e293b; }
-    .modal-box .warn   { background:#fef3c7; border:1px solid #fcd34d; border-radius:8px; padding:10px 14px; font-size:12px; color:#92400e; margin-bottom:18px; }
-    .modal-box .btns   { display:flex; gap:10px; justify-content:flex-end; }
-    .modal-box button  { padding:8px 18px; border-radius:8px; border:none; font-family:'Tajawal',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
-    .btn-cancel        { background:#f1f5f9; color:#334155; }
-    .btn-confirm       { background:linear-gradient(135deg,#f97316,#ea580c); color:#fff; }
+
+    #progress-modal {
+      display:none; position:fixed; inset:0; z-index:9999;
+      background:rgba(0,0,0,0.65); align-items:center; justify-content:center;
+      backdrop-filter: blur(3px);
+    }
+    .progress-box {
+      background:#fff; border-radius:14px; padding:28px 32px; width:340px;
+      text-align:center; direction:rtl; box-shadow:0 12px 40px rgba(0,0,0,0.3);
+    }
+    .progress-title { font-size:16px; font-weight:900; color:#1e1b18; margin-bottom:12px; }
+    .progress-counter { font-size:22px; font-weight:900; color:#ea580c; margin-bottom:12px; }
+    .progress-bar-bg {
+      width:100%; height:10px; background:#e2e8f0; border-radius:10px; overflow:hidden;
+    }
+    .progress-bar-fill {
+      width:0%; height:100%; background:linear-gradient(135deg,#f97316,#ea580c);
+      transition: width 0.2s ease;
+    }
 
     @media print {
       body { background:#fff; }
-      #toolbar, #print-instructions { display:none !important; }
+      #toolbar, #progress-modal, #active-render-slot { display:none !important; }
       #pages-area { padding:0; }
       .page { box-shadow:none; margin:0; padding:8mm 10mm; width:100%; min-height:unset; page-break-after:always; break-before: page;}
       .page:last-child { page-break-after:avoid; }
     }
     @page { size:A4 portrait; margin:5mm; }
-
-    @page portrait  { size: A4 portrait;  margin: 5mm; }
-    @page landscape { size: A4 landscape; margin: 5mm; }
-    @page wide      { size: 500mm 180mm;  margin: 5mm; }
-    .page-portrait  { page: portrait;  }
-    .page-landscape { page: landscape; }
-    .page-wide      { page: wide;      }
   </style>
 </head>
 <body>
@@ -1036,30 +1057,139 @@ function openDocPreview(pagesHTML, title) {
 <div id="toolbar">
   <span class="doc-title">📄 ${title}</span>
   <div class="actions">
-    <button id="btn-print-doc" onclick="document.getElementById('print-instructions').style.display='flex'">🖨️ طباعة / تنزيل PDF</button>
+    <button id="btn-print-doc" onclick="generateDocumentPDF('${title}.pdf')">📥 تنزيل PDF</button>
     <button id="btn-close-doc" onclick="window.parent.closeLedgerPreview()">✕ إغلاق</button>
   </div>
 </div>
 
-<div id="print-instructions">
-  <div class="modal-box">
-    <h2>🖨️ إعدادات الطباعة</h2>
-    <ol>
-      <li>في خانة <strong>الطابعة</strong> اختر <strong style="color:#16a34a;">Save as PDF</strong></li>
-      <li>تأكد أن حجم الورق <strong style="color:#f97316;">A4</strong> عمودي</li>
-      <li>اضبط الهوامش على <strong>لا شيء / None</strong></li>
-    </ol>
-    <div class="warn">⚠️ استخدام <strong>Microsoft Print to PDF</strong> قد لا يحافظ على التنسيق الصحيح.</div>
-    <div class="btns">
-      <button class="btn-cancel" onclick="document.getElementById('print-instructions').style.display='none'">إلغاء</button>
-      <button class="btn-confirm" onclick="document.getElementById('print-instructions').style.display='none'; window.print();">فهمت، تابع للطباعة</button>
+<div id="progress-modal">
+  <div class="progress-box">
+    <div class="progress-title">جاري تحضير ملف PDF...</div>
+    <div class="progress-counter" id="progress-text">0 / 0</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-bar"></div>
     </div>
   </div>
 </div>
 
 <div id="pages-area">
-  ${pagesHTML}
+  ${fullPreviewHTML}
 </div>
+
+<div id="active-render-slot"></div>
+
+<script>
+  window.RAW_PAGES_ARRAY = ${pagesDataJSON};
+
+  const yieldToMainThread = () => new Promise(resolve => setTimeout(resolve, 20));
+
+  // Helper function to force all images in a container to fully load
+  async function ensureImagesLoaded(element) {
+    const images = Array.from(element.querySelectorAll('img'));
+    const loadPromises = images.map(img => {
+      if (img.complete && img.naturalWidth !== 0) {
+        return Promise.resolve();
+      }
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve; // Avoid hanging process on missing images
+      });
+    });
+    await Promise.all(loadPromises);
+  }
+
+  async function generateDocumentPDF(filename) {
+    const btn = document.getElementById('btn-print-doc');
+    const modal = document.getElementById('progress-modal');
+    const progressText = document.getElementById('progress-text');
+    const progressBar = document.getElementById('progress-bar');
+    const renderSlot = document.getElementById('active-render-slot');
+    
+    try {
+      btn.disabled = true;
+
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+
+      if (typeof html2canvas === 'undefined' || !window.jspdf) {
+        alert('مكتبات PDF غير محملة بشكل صحيح.');
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const useVirtualRendering = Array.isArray(window.RAW_PAGES_ARRAY);
+      const rawPages = useVirtualRendering 
+        ? window.RAW_PAGES_ARRAY 
+        : Array.from(document.querySelectorAll('#pages-area .page')).map(el => el.outerHTML);
+
+      const totalPages = rawPages.length;
+
+      if (!totalPages) {
+        alert('لا توجد صفحات للتصدير.');
+        return;
+      }
+
+      progressText.innerText = \`0 / \${totalPages}\`;
+      progressBar.style.width = '0%';
+      modal.style.display = 'flex';
+
+      let pdf = null;
+
+      for (let i = 0; i < totalPages; i++) {
+        const pageNum = i + 1;
+        progressText.innerText = \`\${pageNum} / \${totalPages}\`;
+        progressBar.style.width = \`\${Math.round((pageNum / totalPages) * 100)}%\`;
+
+        await yieldToMainThread();
+
+        renderSlot.innerHTML = rawPages[i];
+        const pageEl = renderSlot.querySelector('.page') || renderSlot.firstElementChild;
+
+        // Ensure images (moe-logo.jpg) are completely loaded into DOM before capturing
+        await ensureImagesLoaded(pageEl);
+
+        const rect = pageEl.getBoundingClientRect();
+        const widthMm = (rect.width * 25.4) / 96;
+        const heightMm = (rect.height * 25.4) / 96;
+        const orientation = widthMm > heightMm ? 'landscape' : 'portrait';
+
+        const canvas = await html2canvas(pageEl, {
+          scale: 3,
+          useCORS: true,
+          allowTaint: false,
+          logging: false
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+        if (i === 0) {
+          pdf = new jsPDF({
+            orientation: orientation,
+            unit: 'mm',
+            format: [widthMm, heightMm]
+          });
+        } else {
+          pdf.addPage([widthMm, heightMm], orientation);
+        }
+
+        pdf.addImage(imgData, 'JPEG', 0, 0, widthMm, heightMm);
+        renderSlot.innerHTML = '';
+      }
+
+      if (pdf) {
+        pdf.save(filename || 'document.pdf');
+      }
+    } catch (err) {
+      console.error('PDF Generation error:', err);
+      alert('حدث خطأ أثناء إنشاء ملف PDF');
+    } finally {
+      renderSlot.innerHTML = '';
+      btn.disabled = false;
+      modal.style.display = 'none';
+    }
+  }
+<\/script>
 
 </body>
 </html>`;

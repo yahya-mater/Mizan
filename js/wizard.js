@@ -490,7 +490,8 @@ function confirmCloseSalfa() {
 
   const salfa = state.transactions.find(t => t.id === closingSalfaId);
   if (!salfa) return;
-
+  
+  salfa.date               = document.getElementById('f-close-salfa-transfer-date')?.value  || salfa.date;
   salfa.status             = 'closed';
   salfa.transferNo         = transferNo;
   salfa.transferDate       = document.getElementById('f-close-salfa-transfer-date')?.value  || '';
@@ -755,9 +756,10 @@ function saveCurrentTransaction() {
     } 
   }
 
-  renderArchive();
   updateStats();
   persistState();
+  sortArchive(_sortKey ?? 'date', -1);
+  renderArchive();
   return tx;
 }
 
@@ -913,24 +915,25 @@ function editTransaction(id) {
   const tx = state.transactions.find(t => t.id === id);
   if (!tx) return;
 
-  // Salfa containers cannot be edited via the wizard — only closed
   if (tx.type === 'salfa') {
     showToast('لتعديل السلفة، استخدم زر الإغلاق أو التعديل المباشر', 'info');
     return;
   }
 
   state.editingId       = id;
-  // Map cash types back to their base type for the wizard
   const baseType = tx.type === 'invoice_cash' ? 'invoice'
                  : tx.type === 'claim_cash'   ? 'claim'
                  : tx.type;
   state.transactionType = baseType;
 
-  //const isCheck = !!tx.transferNo;
-  //const radio   = document.querySelector(`input[name="f-payment-method"][value="${isCheck ? 'شيك' : 'نقداً'}"]`);
-  //if (radio) radio.checked = true;
+  switchTab('wizard');
+  document.getElementById('wizard-title').textContent = `تعديل المعاملة #${tx.serial}`;
+  goToStep(0);
+  selectType(baseType);
+  goToStep(1); // setupStep1() runs here — THEN we overwrite fields below
 
-  document.getElementById('f-serial').value             = tx.serial           || '1';
+  // Fill fields AFTER setupStep1() has run
+  document.getElementById('f-serial').value             = tx.serial           || '';
   document.getElementById('f-date').value               = tx.date             || '';
   document.getElementById('f-recipient').value          = tx.recipient        || '';
   document.getElementById('f-account-from').value       = tx.accountFrom      || '';
@@ -945,38 +948,36 @@ function editTransaction(id) {
   document.getElementById('f-recipient-id-no').value    = tx.recipientIdNo    || '';
   document.getElementById('f-recipient-id-place').value = tx.recipientIdPlace || '';
   document.getElementById('f-transfer-date').value      = tx.transferDate     || '';
+  document.getElementById('f-transfer-no').value        = tx.transferNo       || '';
+  document.getElementById('f-dev-grant-field').value    = tx.devGrantField    || '';
   document.getElementById('f-journal-dinar').value      = baseType === 'journal' ? (tx.dinar || '') : '';
   document.getElementById('f-journal-fils').value       = baseType === 'journal' ? (tx.fils  || '') : '';
   document.getElementById('f-dinar').value              = baseType !== 'journal' ? (tx.dinar || '') : '';
   document.getElementById('f-fils').value               = baseType !== 'journal' ? (tx.fils  || '') : '';
-  document.getElementById('f-dev-grant-field').value    = tx.devGrantField    || '';
-  document.getElementById('f-transfer-no').value        = tx.transferNo       || '';
 
   if (tx.type === 'salfa_yad') {
     const s = state.settings;
-    document.getElementById('f-transfer-no').value        = tx.transferNo                              || '';
-    document.getElementById('f-transfer-date').value      = tx.transferDate                            || '';
-    document.getElementById('f-recipient-name').value     = tx.recipientName     || s.headmaster        || '';
-    document.getElementById('f-recipient-nid').value      = tx.recipientNid      || s.headmasterNid     || '';
-    document.getElementById('f-recipient-id-no').value    = tx.recipientIdNo     || s.headmasterIdNo    || '';
-    document.getElementById('f-recipient-id-place').value = tx.recipientIdPlace  || s.headmasterIdPlace || '';
+    document.getElementById('f-recipient-name').value     = tx.recipientName    || s.headmaster        || '';
+    document.getElementById('f-recipient-nid').value      = tx.recipientNid     || s.headmasterNid     || '';
+    document.getElementById('f-recipient-id-no').value    = tx.recipientIdNo    || s.headmasterIdNo    || '';
+    document.getElementById('f-recipient-id-place').value = tx.recipientIdPlace || s.headmasterIdPlace || '';
   }
 
   loadPurposeTags(tx.purpose || '');
+
   document.getElementById('items-tbody').innerHTML = '';
   itemRowId = 0;
-  if (baseType !== 'advance' && baseType !== 'journal' && Array.isArray(tx.items)) {
+  if (baseType !== 'advance' && baseType !== 'journal'
+      && baseType !== 'salfa_yad' && Array.isArray(tx.items)) {
     tx.items.forEach(item => addItemRow(item));
   }
 
-  switchTab('wizard');
-  document.getElementById('wizard-title').textContent = `تعديل المعاملة #${tx.serial}`;
-  goToStep(0);
-  selectType(baseType);
-
-  goToStep(1);
+  // Set payment method LAST — after fields are populated
   const isCheck = !!tx.transferNo;
-  const radio = document.querySelector(`input[name="f-payment-method"][value="${isCheck ? 'شيك' : 'نقداً'}"]`);
+  const radio = document.querySelector(
+    `input[name="f-payment-method"][value="${isCheck ? 'شيك' : 'نقداً'}"]`
+  );
   if (radio) { radio.checked = true; toggleCheckFields(); }
+
   showToast(`تم تحميل المعاملة ${tx.serial} للتعديل`, 'info');
 }

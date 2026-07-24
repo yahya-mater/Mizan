@@ -170,7 +170,8 @@ async function runBulkExport() {
   const toM   = ARABIC_MONTHS[parseInt(document.getElementById('export-to-month').value)];
   const toY   = document.getElementById('export-to-year').value;
 
-  openDocPreview(pages.join(''), `تصدير جماعي – ${fromM} ${fromY} إلى ${toM} ${toY}`);
+  //openDocPreview(pages.join(''), `تصدير جماعي – ${fromM} ${fromY} إلى ${toM} ${toY}`);
+  openDocPreview(pages, `تصدير جماعي – ${fromM} ${fromY} إلى ${toM} ${toY}`);
 }
 
 function _wrapDocumentPageExport(html){
@@ -203,8 +204,8 @@ function _wrapDocumentPageExport(html){
       }
 
       table            { border-collapse:collapse; width:100%; }
-      td, th           { border:1pt solid #374151; padding:4px 8px; font-size:10pt; vertical-align:middle; }
-      .hdr-center      { text-align:center; font-weight:800; font-size:11pt; padding:5px; }
+      th, td           { border:1pt solid #374151; padding:4px 8px; font-size:10pt; vertical-align:middle; }
+      .hdr-center      { justify-items: center; text-align:center; font-weight:800; font-size:11pt; padding:5px; }
       .hdr-title       { text-align:center; font-weight:900; font-size:12pt; padding:6px; background:#f8fafc; }
       .hdr-side        { text-align:right; font-weight:700; padding:4px 8px; }
       .body-row        { text-align:right; font-size:10.5pt; padding:6px 8px; line-height:1.8; }

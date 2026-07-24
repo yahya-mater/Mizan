@@ -194,8 +194,15 @@ function computeLedgerData(targetMonth, targetYear, accounts, keyMap, seedCarry 
       .map(a => a.name)
   );
 
+  const innerIds = new Set(
+    state.transactions
+      .filter(tx => tx.type === 'salfa')
+      .flatMap(tx => tx.items || [])
+  );
+
   const sorted = [...state.transactions]
   .filter(tx => {
+    if (innerIds.has(tx.id)) return false;
     if (excludedNames.has(tx.accountFrom) || excludedNames.has(tx.accountTo)) return false;
     if (tx.type === 'salfa' || tx.type === 'salfa_yad') return tx.status === 'closed';
     return true;
@@ -257,7 +264,18 @@ function computeLedgerData(targetMonth, targetYear, accounts, keyMap, seedCarry 
 }
 
 function computeDevLedgerData(targetMonth, targetYear, accounts, keyMap, bankAcc, devAcc, dgTotal) {
-  const sorted      = [...state.transactions].sort((a, b) => a.date.localeCompare(b.date));
+  const innerIds = new Set(
+    state.transactions
+      .filter(tx => tx.type === 'salfa')
+      .flatMap(tx => tx.items || [])
+  );
+
+  const sorted      = [...state.transactions]
+  .filter(tx => {
+    if (innerIds.has(tx.id)) return false;
+  })
+  .sort((a, b) => a.date.localeCompare(b.date));
+
   const targetStart = `${targetYear}-${String(targetMonth).padStart(2, '0')}-01`;
 
   const isBankDev = tx => {
