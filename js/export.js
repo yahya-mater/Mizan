@@ -66,6 +66,7 @@ async function runBulkExport() {
     progressDetail.textContent = detail;
   }
 
+  /*
   function getTxsForMonth(month, year) {
     return state.transactions
       .filter(tx => {
@@ -79,6 +80,37 @@ async function runBulkExport() {
           state.transactions.filter(s => s.type === 'salfa').flatMap(s => s.items || [])
         );
         if (innerIds.has(tx.id)) return false;
+        return txInMonth(tx, month, year);
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+  */
+
+  function getTxsForMonth(month, year) {
+    return state.transactions
+      .filter(tx => {
+        if (excludedNames.has(tx.accountFrom) || excludedNames.has(tx.accountTo)) return false;
+
+        // Handle closed Salfa parent transactions
+        if (tx.type === 'salfa' || tx.type === 'salfa_yad') {
+          if (tx.status !== 'closed') return false;
+          const d = new Date(tx.transferDate);
+          return d.getFullYear() === year && (d.getMonth() + 1) === month;
+        }
+
+        // Check if transaction is an inner item inside a Salfa
+        const parentSalfa = state.transactions.find(s => 
+          (s.type === 'salfa' || s.type === 'salfa_yad') && (s.items || []).includes(tx.id)
+        );
+
+        if (parentSalfa) {
+          // If it belongs to a salfa, only include it if the salfa is closed and falls in target month
+          if (parentSalfa.status !== 'closed') return false;
+          const d = new Date(parentSalfa.transferDate || parentSalfa.date);
+          return d.getFullYear() === year && (d.getMonth() + 1) === month;
+        }
+
+        // Standard standalone transaction check
         return txInMonth(tx, month, year);
       })
       .sort((a, b) => a.date.localeCompare(b.date));
@@ -202,6 +234,17 @@ function _wrapDocumentPageExport(html){
         margin:0 auto 20px; box-shadow:0 4px 24px rgba(0,0,0,.18);
         padding:10mm 12mm; display:flex; flex-direction:column;
       }
+        
+/* Only applied during html2canvas capture — never in the live preview or real print */
+.pdf-capture-mode td,
+.pdf-capture-mode th {
+  padding-top: 0px !important;     /* reduce from your normal value */
+  padding-bottom: 12px !important;  /* increase by the same amount, to net the same total height */
+}
+.pdf-capture-mode .doc-title {
+  padding-top: 0px !important;
+  padding-bottom: 15px !important;
+}
 
       table            { border-collapse:collapse; width:100%; }
       th, td           { border:1pt solid #374151; padding:4px 8px; font-size:10pt; vertical-align:middle; }
@@ -283,6 +326,22 @@ function _wrapReportPageExport(html) {
               min-height:unset;
               height: 210mm;
             }
+
+/* Only applied during html2canvas capture — never in the live preview or real print */
+.pdf-capture-mode td,
+.pdf-capture-mode th {
+  padding-top: 0px !important;     /* reduce from your normal value */
+  padding-bottom: 10px !important;  /* increase by the same amount, to net the same total height */
+}
+.pdf-capture-mode .doc-title {
+  padding-top: 0px !important;
+  padding-bottom: 15px !important;
+}
+.pdf-capture-mode .doc-subtitle{
+  padding-top: 0px !important;
+  padding-bottom: 5px !important;
+}
+
             table { border-collapse:collapse; width:100%; font-size:8pt; }
             th, td { border:0.5pt solid #374151; padding:2px 3px; text-align:center; white-space:nowrap; vertical-align:middle; line-height:1.25; }
             .title-row-1 td { font-size:11pt; font-weight:900; background:#1e1b18; color:#fff; padding:5px; border:none; }
@@ -322,6 +381,17 @@ function _wrapLedgerPrintExport(html) {
               min-height:unset;
               height:180mm;
             }
+              
+/* Only applied during html2canvas capture — never in the live preview or real print */
+.pdf-capture-mode td,
+.pdf-capture-mode th {
+  padding-top: 0px !important;     /* reduce from your normal value */
+  padding-bottom: 10px !important;  /* increase by the same amount, to net the same total height */
+}
+.pdf-capture-mode .doc-title {
+  padding-top: 0px !important;
+  padding-bottom: 15px !important;
+}
         }
     </style>
     <div class="ledger" style="width:100%;height:100%">
@@ -344,6 +414,17 @@ function _wrapDevLedgerPrintExport(html) {
               min-height:unset;
               height: 210mm;
             }
+              
+/* Only applied during html2canvas capture — never in the live preview or real print */
+.pdf-capture-mode td,
+.pdf-capture-mode th {
+  padding-top: 0px !important;     /* reduce from your normal value */
+  padding-bottom: 10px !important;  /* increase by the same amount, to net the same total height */
+}
+.pdf-capture-mode .doc-title {
+  padding-top: 0px !important;
+  padding-bottom: 15px !important;
+}
         }
     </style>
     <div class="devledger" style="width:100%;height:100%">

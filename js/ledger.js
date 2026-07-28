@@ -962,14 +962,14 @@ function printDevLedgerPageMaker(targetMonth, targetYear) {
   DEV_GRANT_KEYS.forEach(k => { dgEnd[k] = (dgCarry[k] || 0) + (dgRcv[k] || 0) - (dgSpn[k] || 0); });
 
   const dgColHeaders = DEV_GRANT_KEYS.map(k =>
-    `<th style="background:#1e1b18;color:#fff;font-size:7pt;padding:3px 4px;border:0.5pt solid #374151;">${DEV_GRANT_LABELS[k]}</th>`
+    `<th style="background:#1e1b18;color:#fff;font-size:7pt;border:0.5pt solid #374151;">${DEV_GRANT_LABELS[k]}</th>`
   ).join('');
 
   const dgRow = (label, obj) => `
     <tr>
-      <td style="font-weight:700;text-align:right;padding:3px 6px;border:0.5pt solid #374151;background:#f8fafc;white-space:nowrap;font-size:7.5pt;">${label}</td>
-      ${DEV_GRANT_KEYS.map(k => `<td style="text-align:center;padding:3px 4px;border:0.5pt solid #374151;font-size:7.5pt;">${dgFmt(obj[k])}</td>`).join('')}
-      <td style="text-align:center;padding:3px 4px;border:0.5pt solid #374151;font-weight:800;color:#c2410c;font-size:7.5pt;">${dgFmt(dgSum(obj))}</td>
+      <td style="font-weight:700;text-align:right;border:0.5pt solid #374151;background:#f8fafc;white-space:nowrap;font-size:7.5pt;">${label}</td>
+      ${DEV_GRANT_KEYS.map(k => `<td style="text-align:center;border:0.5pt solid #374151;font-size:7.5pt;">${dgFmt(obj[k])}</td>`).join('')}
+      <td style="text-align:center;border:0.5pt solid #374151;font-weight:800;color:#c2410c;font-size:7.5pt;">${dgFmt(dgSum(obj))}</td>
     </tr>`;
 
   const dgSummaryTable = `
@@ -980,9 +980,9 @@ function printDevLedgerPageMaker(targetMonth, targetYear) {
       <table style="border-collapse:collapse;width:100%;font-family:'Tajawal',Arial,sans-serif;">
         <thead>
           <tr>
-            <th style="background:#1e1b18;color:#fff;font-size:7pt;padding:3px 6px;border:0.5pt solid #374151;text-align:right;">المجال</th>
+            <th style="background:#1e1b18;color:#fff;font-size:7pt;border:0.5pt solid #374151;text-align:right;">المجال</th>
             ${dgColHeaders}
-            <th style="background:#f97316;color:#fff;font-size:7pt;padding:3px 4px;border:0.5pt solid #374151;">المجموع</th>
+            <th style="background:#f97316;color:#fff;font-size:7pt;border:0.5pt solid #374151;">المجموع</th>
           </tr>
         </thead>
         <tbody>

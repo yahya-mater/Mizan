@@ -333,15 +333,15 @@ function printReportPageMaker(month, year) {
   <div class="page page-landscape">
     <table>
       <thead>
-        <tr class="title-row-1"><td colspan="13">خلاصة التبرعات المدرسية</td></tr>
-        <tr class="title-row-2"><td colspan="13">شهر ( ${monthName} / ${monthNumAr} )&nbsp;&nbsp;&nbsp;&nbsp;سنة ( ${year} )</td></tr>
+        <tr class="title-row-1"><td class="doc-title" colspan="13">خلاصة التبرعات المدرسية</td></tr>
+        <tr class="title-row-2"><td class="doc-title" colspan="13">شهر ( ${monthName} / ${monthNumAr} )&nbsp;&nbsp;&nbsp;&nbsp;سنة ( ${year} )</td></tr>
         <tr class="title-row-school">
           <td colspan="13" style="padding:6px 10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right; font-size:8pt;">
             <table style="width:100%; border:none; border-collapse:collapse;">
               <tr>
-                <td style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">مديرية التربية والتعليم: ${state.settings.dirName} / قسم الشؤون المالية</td>
-                <td style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">اسم المدرسة: ${state.settings.schoolName}</td>
-                <td style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">الرقم الوطني للمدرسة: ${state.settings.schoolNid || '–'}</td>
+                <td class="doc-subtitle" style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">مديرية التربية والتعليم: ${state.settings.dirName} / قسم الشؤون المالية</td>
+                <td class="doc-subtitle" style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">اسم المدرسة: ${state.settings.schoolName}</td>
+                <td class="doc-subtitle" style="width:33%; border:none; padding:2px 8px; white-space:nowrap; font-weight:700;">الرقم الوطني للمدرسة: ${state.settings.schoolNid || '–'}</td>
               </tr>
             </table>
           </td>
@@ -409,6 +409,49 @@ function _wrapReportPage(html, month, year) {
       margin:0 auto 20px; box-shadow:0 4px 24px rgba(0,0,0,.18); 
       padding:5mm; display:flex; flex-direction:column; 
     }
+
+    .report-grid {
+  display: grid;
+  grid-template-columns: 70px repeat(12, 1fr);
+  width: 100%;
+  padding: 1px 0 0 1px;
+  overflow: hidden;
+}
+
+.gcell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.5pt solid #374151;
+  margin: -0.5pt 0 0 -0.5pt;
+  padding: 2px 3px;
+  font-size: 7pt;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.gcell.ghead-1 { background:#1e1b18; color:#fff; font-weight:800; font-size:7.5pt; }
+.gcell.ghead-2 { background:#f97316; color:#fff; font-weight:700; font-size:7pt; }
+.gcell.ghead-3 { background:#fff7ed; color:#c2410c; font-weight:700; font-size:6.5pt; }
+
+.gcell.acct-cell { justify-content:flex-end; text-align:right; padding-right:5px; font-size:8pt; }
+.gcell.num-cell  { font-size:7pt; font-weight:600; }
+
+.gcell.row-odd  { background:#f8fafc; }
+.gcell.row-even { background:#fff; }
+
+.gcell.empty-row { min-height:13pt; }
+
+.gcell.total-row {
+  background:#fff7ed !important;
+  font-weight:900;
+  color:#c2410c;
+  border-top:1.5pt solid #f97316;
+  font-size:7.5pt;
+}
+
     table { border-collapse:collapse; width:100%; font-size:8pt; }
     th, td { border:0.5pt solid #374151; padding:2px 3px; text-align:center; white-space:nowrap; vertical-align:middle; line-height:1.25; }
     .title-row-1 td { font-size:11pt; font-weight:900; background:#1e1b18; color:#fff; padding:5px; border:none; }

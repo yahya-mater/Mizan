@@ -820,109 +820,6 @@ function buildLocalPurchasePageFromSalfaRow(tx, row) {
 </div>`;
 }
 
-function buildClaimPageFromSalfaRow(tx, row) {
-  const amountWords = numberToArabicWords(row.total || 0);
-  const dinar       = Math.floor(row.total || 0);
-  const fils        = Math.round(((row.total || 0) % 1) * FILS_PER_DINAR);
-  const purposeList = (row.bayan || '').split(/[،,]/).map(s => s.trim()).filter(Boolean);
-
-  return `<div class="page page-portrait">
-
-  <table style="margin-bottom:0; border-collapse:collapse;"><tr>
-    <td style="justify-items: center; text-align:center; border:none;">
-      <img src="moe-logo.jpg" style="height:90px; object-fit:contain;" />
-    </td>
-  </tr></table>
-
-  <table style="margin-bottom:0; border-collapse:collapse;"><tr>
-    <td style="text-align:center; font-weight:900; font-size:13pt; padding:6px; border:none;">مطالبة مالية</td>
-  </tr></table>
-
-  <table style="margin-bottom:0;">
-    <thead>
-      <tr>
-        <th style="width:20%; border-width:3px;">فلس</th>
-        <th style="width:20%; border-width:3px;">دينار</th>
-        <th style="width:20%; border:none;"></th>
-        <th style="width:40%; border:none; text-align:right;">الرقم (${tx.serial})</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="num-cell" style="border-width:3px;">${fils  || '-----'}</td>
-        <td class="num-cell" style="border-width:3px;">${dinar || '-----'}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <table style="margin-bottom:0; border-collapse:collapse;"><tr>
-    <td style="padding:6px 8px; border:none; font-weight:700;">
-      يطلب لي من مدرسة : ${state.settings.schoolName}
-    </td>
-  </tr></table>
-
-  <table style="margin-bottom:0; border-collapse:collapse;"><tr>
-    <td style="padding:6px 8px; border:none; font-weight:700;">
-      مبلغ وقدره : ${amountWords} وذلك لقاء:-
-    </td>
-  </tr></table>
-
-  <table style="margin-bottom:0;">
-    <tbody>
-      ${[0,1,2,3,4,5,6,7,8,9].map(i => `<tr>
-        <td style="padding:5px 8px;">${i + 1} - ${purposeList[i] || ''}</td>
-      </tr>`).join('')}
-    </tbody>
-  </table>
-
-  <table class="sig-table" style="margin-top:8px;">
-    <thead><tr><th colspan="2">اسم صاحب الاستحقاق</th></tr></thead>
-    <tbody>
-      <tr><td class="sig-label">الاسم:</td><td>${row.owner || ''}</td></tr>
-      <tr><td class="sig-label">الرقم الوطني:</td><td>${row.nid || ''}</td></tr>
-      <tr><td class="sig-label">التوقيع:</td><td></td></tr>
-      <tr><td class="sig-label">التاريخ:</td><td>${row.invoiceDate || tx.date}</td></tr>
-    </tbody>
-  </table>
-
-  <table class="sig-table" style="margin-top:8px;">
-    <thead>
-      <tr>
-        <th colspan="2" style="width:33%;">عضو لجنة</th>
-        <th colspan="2" style="width:33%;">عضو لجنة</th>
-        <th colspan="2" style="width:33%;">عضو لجنة</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="sig-label">الاسم:</td><td>${state.settings.member1 || ''}</td>
-        <td class="sig-label">الاسم:</td><td>${state.settings.member2 || ''}</td>
-        <td class="sig-label">الاسم:</td><td>${state.settings.member3 || ''}</td>
-      </tr>
-      <tr>
-        <td class="sig-label">التوقيع:</td><td></td>
-        <td class="sig-label">التوقيع:</td><td></td>
-        <td class="sig-label">التوقيع:</td><td></td>
-      </tr>
-      <tr>
-        <td class="sig-label">التاريخ:</td><td>${row.invoiceDate || tx.date}</td>
-        <td class="sig-label">التاريخ:</td><td>${row.invoiceDate || tx.date}</td>
-        <td class="sig-label">التاريخ:</td><td>${row.invoiceDate || tx.date}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <table class="sig-table" style="margin-top:8px;">
-    <thead><tr><th colspan="2">رئيس اللجنة</th></tr></thead>
-    <tbody>
-      <tr><td class="sig-label">الاسم:</td><td>${state.settings.headmaster || ''}</td></tr>
-      <tr><td class="sig-label">التوقيع:</td><td></td></tr>
-      <tr><td class="sig-label">التاريخ:</td><td>${row.invoiceDate || tx.date}</td></tr>
-    </tbody>
-  </table>
-
-</div>`;
-}
 
 /* ═══════════════════════════════════════════════════════════
    DOCUMENT BUILDER REGISTRY
@@ -938,6 +835,10 @@ const docBuilders = {
   claim:        buildClaimPage,
   journal:      buildJournalPage,
   salfabook:    buildSalfaBookPage,
+
+  invoice_cash: buildLocalPurchasePage,
+  claim_cash:   buildClaimPage,
+  local_cash:   buildLocalPurchasePage,
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -1154,12 +1055,14 @@ function openDocPreview(pagesHTML, title) {
         const heightMm = (rect.height * 25.4) / 96;
         const orientation = widthMm > heightMm ? 'landscape' : 'portrait';
 
-        const canvas = await html2canvas(pageEl, {
-          scale: 3,
-          useCORS: true,
-          allowTaint: false,
-          logging: false
-        });
+        pageEl.classList.add('pdf-capture-mode');
+const canvas = await html2canvas(pageEl, {
+  scale: 3,
+  useCORS: true,
+  allowTaint: false,
+  logging: false
+});
+pageEl.classList.remove('pdf-capture-mode');
 
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
